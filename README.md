@@ -1,0 +1,2 @@
+# bachelor
+Bachelorprosjekt - AI ChatBot
