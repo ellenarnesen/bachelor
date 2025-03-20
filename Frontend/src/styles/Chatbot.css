@@ -12,6 +12,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  font-family: 'Arial', sans-serif; /* Bruk en sans-serif font */
 }
 
 /* Header med logo og dato */
