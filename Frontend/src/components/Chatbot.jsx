@@ -44,6 +44,9 @@ const Chatbot = () => {
 
   useEffect(() => {
     scrollToBottom();
+    if (!loading) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
   }, [messages]);
 
   const scrollToBottom = () => {
@@ -99,6 +102,9 @@ const Chatbot = () => {
           const nextBotReply = await askChatbot([...formattedMessages, { role: "assistant", content: botReply }], newPrompt);
           setMessages((prev) => [...prev, { sender: "bot", text: nextBotReply }]);
           setLoading(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
+      setTimeout(() => inputRef.current.focus(), 100);
+      inputRef.current.focus();
           setIsTyping(false);
         }, 500);
         return;
