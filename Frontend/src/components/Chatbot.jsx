@@ -130,7 +130,7 @@ const Chatbot = () => {
         <img src={logo} alt="MeyerHaugen" className="logo" />
         <p className="chat-date">{new Date().toLocaleDateString("no-NO", { weekday: "long", day: "numeric", month: "long" })}</p>
       </header>
-      <div className="chatbot-messages">
+      <div className="chatbot-messages" style={{ maxHeight: '400px', overflowY: 'auto' }}>
         {messages.map((msg, i) => (
           <div key={i} className={`chat-message ${msg.sender}`}>
             {msg.sender === "bot" && <img src={miniLogo} alt="Bot" className="bot-avatar" />}
