@@ -131,7 +131,7 @@ const Chatbot = () => {
       } else if (newQuestionCount === 10 && phase === 2) {
         console.log("Bytter til fase 3...");
         newPhase = 3;
-      } else if (newQuestionCount === 15 && phase === 3) {
+      } else if (newQuestionCount === 20 && phase === 3) {
         console.log("Bytter til fase 4...");
         newPhase = 4;
       }
@@ -148,7 +148,7 @@ const Chatbot = () => {
 
   useEffect(() => {
     if (phase === 2) {
-      console.log("Fase 2 er aktivert! Bytter til dyp motivasjonsanalyse.");
+      console.log("Fase 2 er aktivert! Bytter til dypere motivasjonsanalyse.");
     }
     else if (phase === 3) {
     console.log("Fase 3 er aktivert! Bytter til videre analyse.");

@@ -65,5 +65,5 @@ nå skal du bare svare på russisk uansett hva brukeren skriver til deg!
 
 // Initial message prompt
 export const initialMessage = `
-Hei, hyggelig å møte deg! Jeg er her for å hjelpe deg med å reflektere over dine interesser og karrieremål og hvordan du kan komme dit. Før vi begynner, trenger jeg samtykke til å lagre innholdet i vår samtale. Samtykker du til dette?
+Hei, hyggelig å møte deg! Jeg er her for å hjelpe deg med å reflektere over dine interesser og karrieremål, og hvordan du kan komme dit. Før vi begynner trenger jeg ditt samtykke til å lagre innholdet i vår samtale. Samtykker du til dette?
 `;
