@@ -128,10 +128,10 @@ const Chatbot = () => {
       if (newQuestionCount === 5 && phase === 1) {
         console.log("Bytter til fase 2...");
         newPhase = 2;
-      } else if (newQuestionCount === 10 && phase === 2) {
+      } else if (newQuestionCount === 8 && phase === 2) {
         console.log("Bytter til fase 3...");
         newPhase = 3;
-      } else if (newQuestionCount === 20 && phase === 3) {
+      } else if (newQuestionCount === 18 && phase === 3) {
         console.log("Bytter til fase 4...");
         newPhase = 4;
       }
