@@ -4,7 +4,7 @@
   flex-direction: column;
   width: 95%; /* Bruk prosent for responsiv bredde */
   max-width: 600px;
-  height: 100vh; /* Gjør høyden mer fleksibel */
+  height: 90vh; /* Gjør høyden mer fleksibel */
   margin: 20px auto;
   border: 1px solid #ddd;
   border-radius: 10px;
