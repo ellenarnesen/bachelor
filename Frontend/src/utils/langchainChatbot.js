@@ -17,9 +17,11 @@ export const askChatbot = async (conversationMessages, systemPrompt) => {
         { role: "system", content: systemPrompt },
         ...conversationMessages,
       ],
-    }),
-  });
+      temperature: 1.0, 
+      top_p: 0.8              
+    })
 
+  });
   const data = await response.json();
 
   if (!response.ok) {
