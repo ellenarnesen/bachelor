@@ -131,7 +131,7 @@ const Chatbot = () => {
       } else if (newQuestionCount === 8 && phase === 2) {
         console.log("Bytter til fase 3...");
         newPhase = 3;
-      } else if (newQuestionCount === 18 && phase === 3) {
+      } else if (newQuestionCount === 15 && phase === 3) {
         console.log("Bytter til fase 4...");
         newPhase = 4;
       }
@@ -220,15 +220,18 @@ const Chatbot = () => {
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(chatId).then(
-      () => {
-        setCopySuccess("Chat-ID kopiert!");
-        setTimeout(() => setCopySuccess(""), 2000);
-      },
-      (err) => {
-        console.error("Feil ved kopiering av Chat-ID:", err);
-      }
-    );
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(chatId)
+        .then(() => {
+          setCopySuccess("Chat-ID kopiert!");
+          setTimeout(() => setCopySuccess(""), 2000);
+        })
+        .catch((err) => {
+          console.error("Feil ved kopiering av Chat-ID:", err);
+        });
+    } else {
+      console.warn("Clipboard API ikke tilgjengelig.");
+    }
   };
 
   return (
