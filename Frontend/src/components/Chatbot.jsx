@@ -33,6 +33,8 @@ const Chatbot = () => {
   const [phase, setPhase] = useState(1);
   const [hoverText, setHoverText] = useState("Klikk for å kopiere ID");
   const [hoverXbottom, setHoverXbottom] = useState("Klikk for å avslutte samtalen");
+  const [isAwaitingSummaryConfirmation, setIsAwaitingSummaryConfirmation] = useState(false);
+
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -91,60 +93,139 @@ const Chatbot = () => {
   const sendMessage = async () => {
     if (!input.trim()) return;
     setLoading(true);
-
+  
     const userMessage = { sender: "user", text: input.trim() };
     setMessages((prev) => [...prev, userMessage]);
     saveMessage(userMessage);
     setInput("");
     inputRef.current.style.height = "30px";
-
+  
+    // 👇 Brukeren svarer på oppsummering etter fase 2
+    if (isAwaitingSummaryConfirmation && phase === 2) {
+      console.log("✅ Bruker har bekreftet oppsummering. Går videre til fase 3.");
+      setIsAwaitingSummaryConfirmation(false);
+      setPhase(3);
+  
+      const confirmReply = await askChatbot(buildConversationForGPT([
+        ...messages,
+        userMessage
+      ]), phaseThreePrompt);
+  
+      setMessages((prev) => [...prev, { sender: "bot", text: confirmReply }]);
+      saveMessage({ sender: "bot", text: confirmReply });
+      setLoading(false);
+      setIsTyping(false);
+      return;
+    }
+  
+    // 👇 Brukeren svarer på oppsummering etter fase 3
+    if (isAwaitingSummaryConfirmation && phase === 3) {
+      console.log("✅ Bruker har bekreftet oppsummering. Går videre til fase 4.");
+      setIsAwaitingSummaryConfirmation(false);
+      setPhase(4);
+  
+      const confirmReply = await askChatbot(buildConversationForGPT([
+        ...messages,
+        userMessage
+      ]), phaseFourPrompt);
+  
+      setMessages((prev) => [...prev, { sender: "bot", text: confirmReply }]);
+      saveMessage({ sender: "bot", text: confirmReply });
+      setLoading(false);
+      setIsTyping(false);
+      return;
+    }
+  
     setIsTyping(true);
-
+  
     setTimeout(async () => {
       let botReply = "";
       const conversationMessages = buildConversationForGPT([
         ...messages,
         userMessage,
       ]);
-
+  
       let systemPrompt = phaseOnePrompt;
       if (phase === 2) {
         systemPrompt = phaseTwoPrompt;
-      }
-      else if (phase === 3) {
+      } else if (phase === 3) {
         systemPrompt = phaseThreePrompt;
-      }
-      else if (phase === 4) {
+      } else if (phase === 4) {
         systemPrompt = phaseFourPrompt;
       }
-
+  
       botReply = await askChatbot(conversationMessages, systemPrompt);
-
+  
       const newQuestionCount = questionCount + 1;
       setQuestionCount(newQuestionCount);
-
-  // Endrer fase etter hver 5. spørsmål
+  
       let newPhase = phase;
+  
       if (newQuestionCount === 5 && phase === 1) {
         console.log("Bytter til fase 2...");
         newPhase = 2;
-      } else if (newQuestionCount === 8 && phase === 2) {
-        console.log("Bytter til fase 3...");
-        newPhase = 3;
-      } else if (newQuestionCount === 15 && phase === 3) {
-        console.log("Bytter til fase 4...");
-        newPhase = 4;
+      } 
+      else if (newQuestionCount === 8 && phase === 2) {
+        console.log("🔄 Brukeren har sendt sitt 8. spørsmål (slutt på fase 2).");
+  
+        setIsAwaitingSummaryConfirmation(true);
+  
+        const summaryPrompt = `
+          Du er en AI-karriereveileder. Bruk samtalen så langt til å gi en kort oppsummering
+          av hva du har lært om brukeren, og spør gjerne om du er på rett vei.
+          Avslutt med: "Stemmer dette?".
+        `;
+  
+        const summaryReply = await askChatbot(buildConversationForGPT([
+          ...messages,
+          userMessage
+        ]), summaryPrompt);
+  
+        console.log("🧠 Oppsummering etter fase 2:", summaryReply);
+  
+        setMessages((prev) => [...prev, { sender: "bot", text: summaryReply }]);
+        saveMessage({ sender: "bot", text: summaryReply });
+  
+        setLoading(false);
+        setIsTyping(false);
+        return;
+      } 
+      else if (newQuestionCount === 15 && phase === 3) {
+        console.log("🔄 Brukeren har sendt sitt 15. spørsmål (slutt på fase 3).");
+  
+        setIsAwaitingSummaryConfirmation(true);
+  
+        const summaryPrompt = `
+          Du er en AI-karriereveileder. Oppsummer hele samtalen så langt,
+          og pek på hva som virker viktigst for brukeren. Still deretter spørsmålet:
+          "Stemmer dette?".
+        `;
+  
+        const summaryReply = await askChatbot(buildConversationForGPT([
+          ...messages,
+          userMessage
+        ]), summaryPrompt);
+  
+        console.log("🧠 Oppsummering etter fase 3:", summaryReply);
+  
+        setMessages((prev) => [...prev, { sender: "bot", text: summaryReply }]);
+        saveMessage({ sender: "bot", text: summaryReply });
+  
+        setLoading(false);
+        setIsTyping(false);
+        return;
       }
-
+  
       setPhase(newPhase);
-
+  
       setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
       saveMessage({ sender: "bot", text: botReply });
-
+  
       setIsTyping(false);
       setLoading(false);
     }, 500);
   };
+  
 
   useEffect(() => {
     if (phase === 2) {

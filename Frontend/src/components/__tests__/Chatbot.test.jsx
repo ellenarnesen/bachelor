@@ -85,8 +85,7 @@ describe('🧠 Chatbot komponent', () => {
       expect(found).toBe(true);
     });
   });
-  
-  
+
 
   test('chat avsluttes og restart-knapp vises', async () => {
     render(<Chatbot />);
