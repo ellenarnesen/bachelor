@@ -19,7 +19,7 @@ export const askChatbot = async (conversationMessages, systemPrompt) => {
       ],
     }),
   });
-
+  
   const data = await response.json();
 
   if (!response.ok) {
