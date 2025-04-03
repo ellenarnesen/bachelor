@@ -32,7 +32,7 @@ const Chatbot = () => {
   const [questionCount, setQuestionCount] = useState(0);
   const [phase, setPhase] = useState(1);
   const [hoverText, setHoverText] = useState("Klikk for å kopiere ID");
-  const [hoverXbottom, setHoverXbottom] = useState("Klikk for å avslutte samtalen");
+  const [hoverXbottom, setHoverXbottom] = useState("Klikk for å avslutte samtalen og få en oppsummering");
   const [isAwaitingSummaryConfirmation, setIsAwaitingSummaryConfirmation] = useState(false);
 
 
