@@ -257,7 +257,7 @@ const Chatbot = () => {
   };
 
   const finishChat = async () => {
-    if (isFinishingChat) return;
+    if (isFinishingChat) return; // Forhindrer flere kall
     setIsFinishingChat(true);
 
     try {
@@ -409,33 +409,35 @@ const Chatbot = () => {
       )}
 
       {consent !== null && (
-          <div className="chat-input">
-              <textarea
-                  ref={inputRef}
-                  placeholder="Skriv melding her"
-                  value={input}
-                  onChange={handleInputChange}
-                  onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          if (!chatEnded) sendMessage(); // Kun send hvis chat ikke er avsluttet
-                      }
-                  }}
-                  disabled={loading || chatEnded} // Deaktivert hvis chat er avsluttet
-                  rows={1}
-                  style={{ resize: "none", minHeight: "30px", maxHeight: "200px", overflowY: "auto" }}
-              />
-              <button onClick={sendMessage} disabled={loading || chatEnded}>
-                  ➤
-              </button>
-              <button 
-                  onClick={finishChat} 
-                  title={hoverXbottom}
-                  disabled={isFinishingChat} // Deaktiver knappen etter første trykk
-                  >                         
-                  <IoClose />
-              </button>
-          </div>
+        <div className="chat-input">
+          <textarea
+            ref={inputRef}
+            placeholder="Skriv melding her"
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (!chatEnded) sendMessage(); // Kun send hvis chat ikke er avsluttet
+              }
+            }}
+            disabled={loading || chatEnded} // Deaktivert hvis chat er avsluttet
+            rows={1}
+            style={{ resize: "none", minHeight: "30px", maxHeight: "200px", overflowY: "auto" }}
+          />
+          <button onClick={sendMessage} disabled={loading || chatEnded}>
+            ➤
+          </button>
+          {!chatEnded && !isFinishingChat && (
+            <button 
+              onClick={finishChat} 
+              title={hoverXbottom}
+              disabled={isFinishingChat} // Deaktiver knappen etter første trykk
+            >
+              <IoClose />
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
