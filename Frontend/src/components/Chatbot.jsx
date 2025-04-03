@@ -81,11 +81,12 @@ const Chatbot = () => {
       sender: "bot",
       jsx: (
         <>
-          Supert! Da setter vi i gang.😊 Vi skal utforske hva som motiverer deg, 
-          og hvordan det kan kobles til karriere. Først blir vi litt kjent, 
-          så ser vi på situasjonen din akkurat nå, før vi går dypere inn i hva som gir deg energi og mening. 
-          Til slutt oppsummerer vi – og du kan be om oppsummering når som helst i samtalen ved å trykke på{" "}
+          Den er grei! Da setter vi i gang😊 Vi skal utforske hva som motiverer deg
+          og hvordan det kan kobles til en karriere. Først tenker jeg vi blir litt kjent, 
+          før vi går over til å se på situasjonen din akkurat nå. Deretter skal vi utforske hva som driver og gir verdi for deg. 
+          Til slutt går vi gjennom det vi har snakket om – eller når du er klar for en endelig oppsummering av samtalen trykker du bare { " " } 
           <img src={kryssIkon} alt="kryss" style={{ width: "20px", verticalAlign: "middle" }} />
+            nederst til høyre.
         </>
       ),
     };
