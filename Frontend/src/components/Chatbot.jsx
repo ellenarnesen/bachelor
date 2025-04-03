@@ -13,6 +13,7 @@ import logo from "../media/logo.png";
 import miniLogo from "../media/MH_logo.png";
 import { IoClose } from "react-icons/io5";
 import { supabase } from "../supabaseClient";
+import kryssIkon from "../media/kryssikon.png";
 
 // Bruker miljøvariabel for API-kall
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -76,17 +77,32 @@ const Chatbot = () => {
         ? "Ja, jeg samtykker."
         : "Nei, jeg ønsker ikke lagring.",
     };
-    const botMsg = {
+    const botMsg1 = {
       sender: "bot",
-      text: "Den er grei! Mitt navn er SoftAI, hva heter du?",
+      jsx: (
+        <>
+          Supert! Da setter vi i gang.😊 Vi skal utforske hva som motiverer deg, 
+          og hvordan det kan kobles til karriere. Først blir vi litt kjent, 
+          så ser vi på situasjonen din akkurat nå, før vi går dypere inn i hva som gir deg energi og mening. 
+          Til slutt oppsummerer vi – og du kan be om oppsummering når som helst i samtalen ved å trykke på{" "}
+          <img src={kryssIkon} alt="kryss" style={{ width: "20px", verticalAlign: "middle" }} />
+        </>
+      ),
     };
 
-    setMessages((prev) => [...prev, userMsg, botMsg]);
+    const botMsg2 = {
+      sender: "bot",
+      text: " Men først! Mitt navn er SoftAi, hva heter du?"
+    };
+    
+
+    setMessages((prev) => [...prev, userMsg, botMsg1, botMsg2]);
 
     if (userConsent) {
       await startNewChat();
       saveMessage(userMsg);
-      saveMessage(botMsg);
+      saveMessage(botMsg1);
+      saveMessage(botMsg2);
     }
   };
 
@@ -344,7 +360,7 @@ const Chatbot = () => {
                 <div className="bot-avatar-placeholder"></div>
               )
             ) : null}
-            <div className={`chat-bubble ${msg.sender}`}>{msg.text}</div>
+            <div className={`chat-bubble ${msg.sender}`}>{msg.jsx ? msg.jsx : msg.text}</div>
           </div>
         ))}
 
@@ -408,7 +424,9 @@ const Chatbot = () => {
 };
 
 function buildConversationForGPT(allMessages) {
-  return allMessages.map((m) => ({
+  return allMessages
+  .filter((m) => m.text) // Fjerner meldinger uten `text`
+  .map((m) => ({
     role: m.sender === "bot" ? "assistant" : "user",
     content: m.text,
   }));

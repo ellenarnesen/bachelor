@@ -73,3 +73,7 @@ Before ending the conversation, ask if the user feels finished.
 Make sure the user leaves with clarity and ownership of their next step.
 `;
 
+// Initial message prompt
+export const initialMessage = `
+Hei, hyggelig å møte deg! Jeg er her for å hjelpe deg med å reflektere over din motivasjon. Før vi begynner, trenger jeg ditt samtykke til å lagre innholdet i vår samtale. OK?
+`;
