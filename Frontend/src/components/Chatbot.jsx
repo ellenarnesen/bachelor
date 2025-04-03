@@ -276,9 +276,25 @@ const Chatbot = () => {
 
       // Oppsummer samtalen ved hjelp av en prompt
       const summaryPrompt = `
-        Du er en AI som oppsummerer samtaler. Oppsummer følgende samtale i 3-4 setninger, 
-        og fokuser på hovedtemaene og spørsmålene som ble diskutert:
-        Fokuser på motviasjon og karriereveiledning. Forsøk å komme med noen tiltak som brukeren kan fokusere på i videre.
+      Bruk all informasjon du har fått i samtalen til nå om denne personen.
+      oppsummeringen skal ikke være punktvis men heller bare avsnittsbasert.
+      del det inn i 3 avnsitt: start med en innledning, deretter gå over på å forklare de 5 punktene nedenfor og derretter en refleksjon.
+      hold det til absolutt maks 5-8 setninger.
+
+      Skriv en personlig og ærlig oppsummering som inneholder:
+
+        1. Motivasjon og driv – Hva virker som viktig for personen? Hva motiverer dem?
+
+        2. Styrker og ressurser – Hva er de gode på? Hva har de fått til?
+
+        3. Muligheter og potensial – Hvilke veier virker åpne? Hva kunne de vurdere å satse mer på?
+
+        4. Verdier og interesser – Hva bryr de seg om? Hva virker meningsfullt for dem?
+
+        5. Utfordringer og blinde soner – Hva virker uklart, ubalansert eller underutviklet? Hva kunne de tenkt mer på eller tatt tak i?
+
+      Avslutt med en refleksjon som både anerkjenner og utfordrer:
+      Pek på noe vedkommende kanskje unngår, overser eller kan vokse mer i, og still et spørsmål som kan gi dem noe å tenke videre på.
       `;
       const summary = await askChatbot(conversationMessages, summaryPrompt);
 
