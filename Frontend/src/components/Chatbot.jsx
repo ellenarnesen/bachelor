@@ -78,7 +78,7 @@ const Chatbot = () => {
     };
     const botMsg = {
       sender: "bot",
-      text: "Den er grei! Mitt navn er SoftAI, hva heter du?",
+      text: "Den er grei! Mitt navn er SoftAI. Vi skal gå inn på....hva heter du?", 
     };
 
     setMessages((prev) => [...prev, userMsg, botMsg]);
@@ -262,6 +262,7 @@ const Chatbot = () => {
 
     try {
       if (consent !== false && chatId) {
+        // Oppdater samtalestatus i databasen
         const { error } = await supabase
           .from("chats")
           .update({ status: "finished" })
@@ -269,15 +270,32 @@ const Chatbot = () => {
 
         if (error) throw error;
       }
-    } catch (error) {
-      console.error("❌ Feil ved oppdatering av samtalestatus:", error);
-    }
 
-    setMessages((prev) => [
-      ...prev,
-      { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!" },
-    ]);
-    setChatEnded(true);
+      // Bygg samtalen for oppsummering
+      const conversationMessages = buildConversationForGPT(messages);
+
+      // Oppsummer samtalen ved hjelp av en prompt
+      const summaryPrompt = `
+        Du er en AI som oppsummerer samtaler. Oppsummer følgende samtale i 3-4 setninger, 
+        og fokuser på hovedtemaene og spørsmålene som ble diskutert:
+        Fokuser på motviasjon og karriereveiledning. Forsøk å komme med noen tiltak som brukeren kan fokusere på i videre.
+      `;
+      const summary = await askChatbot(conversationMessages, summaryPrompt);
+
+      // Legg til oppsummeringen som en melding fra boten
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "Her er en oppsummering av samtalen:" },
+        { sender: "bot", text: summary },
+        { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!" },
+      ]);
+
+      setChatEnded(true);
+    } catch (error) {
+      console.error("❌ Feil ved oppdatering av samtalestatus eller oppsummering:", error);
+    } finally {
+      setIsFinishingChat(false);
+    }
   };
 
   const restartChat = async () => {
