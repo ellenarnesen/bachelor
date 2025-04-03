@@ -78,7 +78,7 @@ const Chatbot = () => {
     };
     const botMsg = {
       sender: "bot",
-      text: "Tusen takk! Mitt navn er SoftAI, hva heter du?",
+      text: "Den er grei! Mitt navn er SoftAI, hva heter du?",
     };
 
     setMessages((prev) => [...prev, userMsg, botMsg]);
@@ -171,9 +171,9 @@ const Chatbot = () => {
         setIsAwaitingSummaryConfirmation(true);
   
         const summaryPrompt = `
-          Du er en AI-karriereveileder. Bruk samtalen så langt til å gi en kort oppsummering
-          av hva du har lært om brukeren, og spør gjerne om du er på rett vei.
-          Avslutt med: "Stemmer dette?".
+          Du er en AI-karriereveileder som fokuserer på motivasjonsfaktorer. 
+          Forklar med 2 setinger hvordan din forståelse av dem har vært så langt.
+          Forhør deg om de gjenkjenner seg i din forståelse av dem.
         `;
   
         const summaryReply = await askChatbot(buildConversationForGPT([
@@ -196,9 +196,9 @@ const Chatbot = () => {
         setIsAwaitingSummaryConfirmation(true);
   
         const summaryPrompt = `
-          Du er en AI-karriereveileder. Oppsummer hele samtalen så langt,
-          og pek på hva som virker viktigst for brukeren. Still deretter spørsmålet:
-          "Stemmer dette?".
+          Du er en AI-karriereveileder som fokuserer på motivasjonsfaktorer. 
+          Forklar med 2 setinger hvordan din forståelse av dem har vært så langt.
+          Forhør deg om de gjenkjenner seg i din forståelse av dem.
         `;
   
         const summaryReply = await askChatbot(buildConversationForGPT([
