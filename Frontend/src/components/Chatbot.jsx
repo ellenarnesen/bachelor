@@ -84,9 +84,9 @@ const Chatbot = () => {
           Den er grei! Da setter vi i gang😊 Vi skal utforske hva som motiverer deg
           og hvordan det kan kobles til en karriere. Først tenker jeg vi blir litt kjent, 
           før vi går over til å se på situasjonen din akkurat nå. Deretter skal vi utforske hva som driver og gir verdi for deg. 
-          Til slutt går vi gjennom det vi har snakket om – eller når du er klar for en endelig oppsummering av samtalen trykker du bare { " " } 
-          <img src={kryssIkon} alt="kryss" style={{ width: "20px", verticalAlign: "middle" }} />
-            nederst til høyre.
+          Til slutt trykker du { " " }  <img src={kryssIkon} alt="kryss" style={{ width: "20px", verticalAlign: "middle" }} />
+          { " " } og du vil da få en oppsummering på hva vi har snakket om.
+          Du kan også avslutte samtalen når du vil, men får å få mest mulig ut av samtalen anbefaler vi en viss lengde.
         </>
       ),
     };
@@ -294,10 +294,22 @@ const Chatbot = () => {
       // Oppsummer samtalen ved hjelp av en prompt
       const summaryPrompt = `
         Bruk all informasjon du har fått i samtalen til nå om denne personen.
-        Oppsummeringen skal ikke være punktvis, men heller avsnittsbasert.
-        Del det inn i 3 avsnitt: start med en innledning, deretter gå over på å forklare de 5 punktene nedenfor, og deretter en refleksjon.
-        Hold det til absolutt maks 5-8 setninger.
-      `;
+        Oppsummeringen skal være delt inn i tre avsnitt med fem til åtte setninger.
+        Oppsummering består av en innledning, peronslige egenskaper, og forslag til videre steg i karrieren.
+    
+        Besvar alle punktene nedendfor som innebærer personlige egenskaper:
+
+          1. Motivasjon og driv – Hva virker som viktig for personen? Hva motiverer dem?
+
+          2. Styrker og ressurser – Hva er de gode på? Hva har de fått til?
+
+          3. Muligheter og potensial – Hvilke veier virker åpne? Hva kunne de vurdere å satse mer på?
+
+          4. Verdier og interesser – Hva bryr de seg om? Hva virker meningsfullt for dem?
+
+          5. Utfordringer og blinde soner – Hva virker uklart, ubalansert eller underutviklet? Hva kunne de tenkt mer på eller tatt tak i?
+        `;
+
       const summary = await askChatbot(conversationMessages, summaryPrompt);
   
       // Legg til oppsummeringen som en melding fra boten
