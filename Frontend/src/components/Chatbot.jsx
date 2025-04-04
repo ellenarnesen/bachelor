@@ -258,25 +258,25 @@ const Chatbot = () => {
 
   const saveMessage = async (message) => {
     if (!chatId || consent === false) {
-      console.warn("⚠️ Meldinger lagres ikke: enten chatId ikke klar eller ikke samtykket.");
       return;
     }
-
+  
     try {
       const { error } = await supabase
         .from("messages")
         .insert([{ chat_id: chatId, sender: message.sender, text: message.text }]);
-
+  
       if (error) throw error;
     } catch (error) {
       console.error("❌ Feil ved lagring av melding:", error);
     }
   };
+  
 
   const finishChat = async () => {
     if (isFinishingChat) return; // Forhindrer flere kall
     setIsFinishingChat(true);
-
+  
     try {
       if (consent !== false && chatId) {
         // Oppdater samtalestatus i databasen
@@ -284,52 +284,44 @@ const Chatbot = () => {
           .from("chats")
           .update({ status: "finished" })
           .eq("id", chatId);
-
+  
         if (error) throw error;
       }
-
+  
       // Bygg samtalen for oppsummering
       const conversationMessages = buildConversationForGPT(messages);
-
+  
       // Oppsummer samtalen ved hjelp av en prompt
       const summaryPrompt = `
-      Bruk all informasjon du har fått i samtalen til nå om denne personen.
-      oppsummeringen skal ikke være punktvis men heller bare avsnittsbasert.
-      del det inn i 3 avnsitt: start med en innledning, deretter gå over på å forklare de 5 punktene nedenfor og derretter en refleksjon.
-      hold det til absolutt maks 5-8 setninger.
-
-      Skriv en personlig og ærlig oppsummering som inneholder:
-
-        1. Motivasjon og driv – Hva virker som viktig for personen? Hva motiverer dem?
-
-        2. Styrker og ressurser – Hva er de gode på? Hva har de fått til?
-
-        3. Muligheter og potensial – Hvilke veier virker åpne? Hva kunne de vurdere å satse mer på?
-
-        4. Verdier og interesser – Hva bryr de seg om? Hva virker meningsfullt for dem?
-
-        5. Utfordringer og blinde soner – Hva virker uklart, ubalansert eller underutviklet? Hva kunne de tenkt mer på eller tatt tak i?
-
-      Avslutt med en refleksjon som både anerkjenner og utfordrer:
-      Pek på noe vedkommende kanskje unngår, overser eller kan vokse mer i, og still et spørsmål som kan gi dem noe å tenke videre på.
+        Bruk all informasjon du har fått i samtalen til nå om denne personen.
+        Oppsummeringen skal ikke være punktvis, men heller avsnittsbasert.
+        Del det inn i 3 avsnitt: start med en innledning, deretter gå over på å forklare de 5 punktene nedenfor, og deretter en refleksjon.
+        Hold det til absolutt maks 5-8 setninger.
       `;
       const summary = await askChatbot(conversationMessages, summaryPrompt);
-
+  
       // Legg til oppsummeringen som en melding fra boten
-      setMessages((prev) => [
-        ...prev,
+      const summaryMessages = [
         { sender: "bot", text: "Her er en oppsummering av samtalen:" },
         { sender: "bot", text: summary },
         { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!" },
-      ]);
-
-      setChatEnded(true);
+      ];
+  
+      setMessages((prev) => [...prev, ...summaryMessages]);
+  
+      // Lagre oppsummeringen i databasen
+      for (const message of summaryMessages) {
+        await saveMessage(message); // Bruker saveMessage-funksjonen for å lagre meldinger
+      }
+  
+      setChatEnded(true); // Marker samtalen som avsluttet
     } catch (error) {
       console.error("❌ Feil ved oppdatering av samtalestatus eller oppsummering:", error);
     } finally {
-      setIsFinishingChat(false);
+      setIsFinishingChat(false); // Skjul spinneren når prosessen er ferdig
     }
   };
+  
 
   const restartChat = async () => {
     setChatId(null);
@@ -445,14 +437,22 @@ const Chatbot = () => {
           <button onClick={sendMessage} disabled={loading || chatEnded}>
             ➤
           </button>
-          {!chatEnded && !isFinishingChat && (
-            <button 
-              onClick={finishChat} 
-              title={hoverXbottom}
-              disabled={isFinishingChat} // Deaktiver knappen etter første trykk
-            >
-              <IoClose />
-            </button>
+          {!chatEnded && (
+            <div className="chat-actions">
+              {!isFinishingChat ? (
+                <button 
+                  onClick={finishChat} 
+                  title={hoverXbottom}
+                  disabled={isFinishingChat} // Deaktiver knappen etter første trykk
+                >
+                  <IoClose />
+                </button>
+              ) : (
+                <div className="spinner">
+                  <img src={miniLogo} alt="Laster oppsummering..." />
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}

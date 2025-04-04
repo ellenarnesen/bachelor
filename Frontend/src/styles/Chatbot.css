@@ -261,6 +261,32 @@
   0%, 100% { opacity: 0.3; transform: translateY(0); }
   50% { opacity: 1; transform: translateY(-5px); }
 }
+/* Spinner-container */
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  margin: auto;
+}
+
+/* Spinner-animasjon */
+.spinner img {
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+/* Keyframes for rotasjon */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 /* RESPONSIVITET */
 @media (max-width: 768px) {
   .chat-container {
