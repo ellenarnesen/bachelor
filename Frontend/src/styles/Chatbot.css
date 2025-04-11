@@ -1,3 +1,6 @@
+html{
+  background-color: #f0ece5;
+}
 /* Hovedcontainer */
 .chat-container {
   display: flex;
@@ -20,6 +23,7 @@
   padding: 10px;
   border-bottom: 1px solid #ddd;
   flex-shrink: 0; /* Prevents the header from shrinking */
+  background-color: #ffffff;
 }
 
 .logo {

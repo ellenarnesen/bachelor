@@ -6,6 +6,7 @@ import {
   phaseTwoPrompt,
   phaseThreePrompt,
   phaseFourPrompt,
+  summaryPrompt,
 } from "../data/chatbotPrompts";
 import "../styles/Chatbot.css";
 import { askChatbot } from "../utils/langchainChatbot";
@@ -291,25 +292,7 @@ const Chatbot = () => {
       // Bygg samtalen for oppsummering
       const conversationMessages = buildConversationForGPT(messages);
   
-      // Oppsummer samtalen ved hjelp av en prompt
-      const summaryPrompt = `
-        Bruk all informasjon du har fått i samtalen til nå om denne personen.
-        Oppsummeringen skal være delt inn i tre avsnitt med fem til åtte setninger.
-        Oppsummering består av en innledning, peronslige egenskaper, og forslag til videre steg i karrieren.
-    
-        Besvar alle punktene nedendfor som innebærer personlige egenskaper:
-
-          1. Motivasjon og driv – Hva virker som viktig for personen? Hva motiverer dem?
-
-          2. Styrker og ressurser – Hva er de gode på? Hva har de fått til?
-
-          3. Muligheter og potensial – Hvilke veier virker åpne? Hva kunne de vurdere å satse mer på?
-
-          4. Verdier og interesser – Hva bryr de seg om? Hva virker meningsfullt for dem?
-
-          5. Utfordringer og blinde soner – Hva virker uklart, ubalansert eller underutviklet? Hva kunne de tenkt mer på eller tatt tak i?
-        `;
-
+      // Bruk summaryPrompt fra chatbotPrompts.js
       const summary = await askChatbot(conversationMessages, summaryPrompt);
   
       // Legg til oppsummeringen som en melding fra boten
