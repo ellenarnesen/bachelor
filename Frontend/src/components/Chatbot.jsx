@@ -2,10 +2,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   initialMessage,
-  phaseOnePrompt,
-  phaseTwoPrompt,
-  phaseThreePrompt,
-  phaseFourPrompt,
+  dynamicSystemPrompt,
+  summaryPrompt
 } from "../data/chatbotPrompts";
 import "../styles/Chatbot.css";
 import { askChatbot } from "../utils/langchainChatbot";
@@ -30,11 +28,8 @@ const Chatbot = () => {
   const [chatEnded, setChatEnded] = useState(false);
   const [isFinishingChat, setIsFinishingChat] = useState(false);
   const [copySuccess, setCopySuccess] = useState("");
-  const [questionCount, setQuestionCount] = useState(0);
-  const [phase, setPhase] = useState(1);
   const [hoverText, setHoverText] = useState("Klikk for å kopiere ID");
   const [hoverXbottom, setHoverXbottom] = useState("Klikk for å avslutte samtalen og få en oppsummering");
-  const [isAwaitingSummaryConfirmation, setIsAwaitingSummaryConfirmation] = useState(false);
 
 
   const messagesEndRef = useRef(null);
@@ -117,42 +112,6 @@ const Chatbot = () => {
     setInput("");
     inputRef.current.style.height = "30px";
   
-    // 👇 Brukeren svarer på oppsummering etter fase 2
-    if (isAwaitingSummaryConfirmation && phase === 2) {
-      console.log("✅ Bruker har bekreftet oppsummering. Går videre til fase 3.");
-      setIsAwaitingSummaryConfirmation(false);
-      setPhase(3);
-  
-      const confirmReply = await askChatbot(buildConversationForGPT([
-        ...messages,
-        userMessage
-      ]), phaseThreePrompt);
-  
-      setMessages((prev) => [...prev, { sender: "bot", text: confirmReply }]);
-      saveMessage({ sender: "bot", text: confirmReply });
-      setLoading(false);
-      setIsTyping(false);
-      return;
-    }
-  
-    // 👇 Brukeren svarer på oppsummering etter fase 3
-    if (isAwaitingSummaryConfirmation && phase === 3) {
-      console.log("✅ Bruker har bekreftet oppsummering. Går videre til fase 4.");
-      setIsAwaitingSummaryConfirmation(false);
-      setPhase(4);
-  
-      const confirmReply = await askChatbot(buildConversationForGPT([
-        ...messages,
-        userMessage
-      ]), phaseFourPrompt);
-  
-      setMessages((prev) => [...prev, { sender: "bot", text: confirmReply }]);
-      saveMessage({ sender: "bot", text: confirmReply });
-      setLoading(false);
-      setIsTyping(false);
-      return;
-    }
-  
     setIsTyping(true);
   
     setTimeout(async () => {
@@ -162,78 +121,7 @@ const Chatbot = () => {
         userMessage,
       ]);
   
-      let systemPrompt = phaseOnePrompt;
-      if (phase === 2) {
-        systemPrompt = phaseTwoPrompt;
-      } else if (phase === 3) {
-        systemPrompt = phaseThreePrompt;
-      } else if (phase === 4) {
-        systemPrompt = phaseFourPrompt;
-      }
-  
-      botReply = await askChatbot(conversationMessages, systemPrompt);
-  
-      const newQuestionCount = questionCount + 1;
-      setQuestionCount(newQuestionCount);
-  
-      let newPhase = phase;
-  
-      if (newQuestionCount === 5 && phase === 1) {
-        console.log("Bytter til fase 2...");
-        newPhase = 2;
-      } 
-      else if (newQuestionCount === 8 && phase === 2) {
-        console.log("🔄 Brukeren har sendt sitt 8. spørsmål (slutt på fase 2).");
-  
-        setIsAwaitingSummaryConfirmation(true);
-  
-        const summaryPrompt = `
-          Du er en AI-karriereveileder som fokuserer på motivasjonsfaktorer. 
-          Forklar med 2 setinger hvordan din forståelse av dem har vært så langt.
-          Forhør deg om de gjenkjenner seg i din forståelse av dem.
-        `;
-  
-        const summaryReply = await askChatbot(buildConversationForGPT([
-          ...messages,
-          userMessage
-        ]), summaryPrompt);
-  
-        console.log("🧠 Oppsummering etter fase 2:", summaryReply);
-  
-        setMessages((prev) => [...prev, { sender: "bot", text: summaryReply }]);
-        saveMessage({ sender: "bot", text: summaryReply });
-  
-        setLoading(false);
-        setIsTyping(false);
-        return;
-      } 
-      else if (newQuestionCount === 15 && phase === 3) {
-        console.log("🔄 Brukeren har sendt sitt 15. spørsmål (slutt på fase 3).");
-  
-        setIsAwaitingSummaryConfirmation(true);
-  
-        const summaryPrompt = `
-          Du er en AI-karriereveileder som fokuserer på motivasjonsfaktorer. 
-          Forklar med 2 setinger hvordan din forståelse av dem har vært så langt.
-          Forhør deg om de gjenkjenner seg i din forståelse av dem.
-        `;
-  
-        const summaryReply = await askChatbot(buildConversationForGPT([
-          ...messages,
-          userMessage
-        ]), summaryPrompt);
-  
-        console.log("🧠 Oppsummering etter fase 3:", summaryReply);
-  
-        setMessages((prev) => [...prev, { sender: "bot", text: summaryReply }]);
-        saveMessage({ sender: "bot", text: summaryReply });
-  
-        setLoading(false);
-        setIsTyping(false);
-        return;
-      }
-  
-      setPhase(newPhase);
+      botReply = await askChatbot(conversationMessages, dynamicSystemPrompt);
   
       setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
       saveMessage({ sender: "bot", text: botReply });
@@ -242,19 +130,6 @@ const Chatbot = () => {
       setLoading(false);
     }, 500);
   };
-  
-
-  useEffect(() => {
-    if (phase === 2) {
-      console.log("Fase 2 er aktivert! Bytter til dypere motivasjonsanalyse.");
-    }
-    else if (phase === 3) {
-    console.log("Fase 3 er aktivert! Bytter til videre analyse.");
-    }
-    else if (phase === 4) {
-    console.log("Fase 4 er aktivert! Fullfører prosessen.");
-    }
-  }, [phase]);
 
   const saveMessage = async (message) => {
     if (!chatId || consent === false) {
@@ -290,25 +165,6 @@ const Chatbot = () => {
   
       // Bygg samtalen for oppsummering
       const conversationMessages = buildConversationForGPT(messages);
-  
-      // Oppsummer samtalen ved hjelp av en prompt
-      const summaryPrompt = `
-        Bruk all informasjon du har fått i samtalen til nå om denne personen.
-        Oppsummeringen skal være delt inn i tre avsnitt med fem til åtte setninger.
-        Oppsummering består av en innledning, peronslige egenskaper, og forslag til videre steg i karrieren.
-    
-        Besvar alle punktene nedendfor som innebærer personlige egenskaper:
-
-          1. Motivasjon og driv – Hva virker som viktig for personen? Hva motiverer dem?
-
-          2. Styrker og ressurser – Hva er de gode på? Hva har de fått til?
-
-          3. Muligheter og potensial – Hvilke veier virker åpne? Hva kunne de vurdere å satse mer på?
-
-          4. Verdier og interesser – Hva bryr de seg om? Hva virker meningsfullt for dem?
-
-          5. Utfordringer og blinde soner – Hva virker uklart, ubalansert eller underutviklet? Hva kunne de tenkt mer på eller tatt tak i?
-        `;
 
       const summary = await askChatbot(conversationMessages, summaryPrompt);
   
@@ -316,7 +172,7 @@ const Chatbot = () => {
       const summaryMessages = [
         { sender: "bot", text: "Her er en oppsummering av samtalen:" },
         { sender: "bot", text: summary },
-        { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!" },
+        { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!\nHvis du vil starte på nytt, trykk på knappen nedenfor 👇" },
       ];
   
       setMessages((prev) => [...prev, ...summaryMessages]);
@@ -333,7 +189,6 @@ const Chatbot = () => {
       setIsFinishingChat(false); // Skjul spinneren når prosessen er ferdig
     }
   };
-  
 
   const restartChat = async () => {
     setChatId(null);
@@ -479,16 +334,6 @@ function buildConversationForGPT(allMessages) {
     role: m.sender === "bot" ? "assistant" : "user",
     content: m.text,
   }));
-}
-
-function countAssistantMessages(allMessages, currentPhase) {
-  let count = 0;
-  for (const msg of allMessages) {
-    if (msg.sender === "bot") {
-      count++;
-    }
-  }
-  return count;
 }
 
 export default Chatbot;
