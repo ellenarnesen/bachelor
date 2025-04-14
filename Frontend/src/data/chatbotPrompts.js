@@ -25,7 +25,9 @@ It is very imporant that you do now rush throught the phases.
 
 // 📌 Brukes som åpningsmelding i chatten
 export const initialMessage = `
-Hei, hyggelig å møte deg! Jeg er her for å hjelpe deg med å reflektere over din motivasjon. Før vi begynner, trenger jeg ditt samtykke til å lagre innholdet i vår samtale. Samtykker du til dette?
+Hei, hyggelig å møte deg! Jeg er her for å hjelpe deg med å reflektere over din motivasjon. 
+Før vi begynner, trenger jeg ditt samtykke til å lagre og behandle innholdet i vår samtale. 
+Samtykker du til dette?
 `;
 
 // Oppsummer samtalen ved hjelp av en prompt
@@ -47,7 +49,7 @@ Besvar alle punktene nedendfor som innebærer personlige egenskaper:
   5. Utfordringer og blinde soner – Hva virker uklart, ubalansert eller underutviklet? Hva kunne de tenkt mer på eller tatt tak i?
 `;
 
-// 🗂️ Tidligere faseprompter (beholdt for mulig senere bruk)
+//  Tidligere faseprompter (beholdt for mulig senere bruk)
 
 export const phaseOnePrompt = `You are a clever, skilled motivational coach
 
