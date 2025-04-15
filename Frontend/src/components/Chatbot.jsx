@@ -2,10 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   initialMessage,
-  phaseOnePrompt,
-  phaseTwoPrompt,
-  phaseThreePrompt,
-  phaseFourPrompt,
+  dynamicSystemPrompt,
   summaryPrompt,
 } from "../data/chatbotPrompts";
 import "../styles/Chatbot.css";
@@ -79,12 +76,11 @@ const Chatbot = () => {
       sender: "bot",
       jsx: (
         <>
-          Den er grei! Da setter vi i gang😊 Vi skal utforske hva som motiverer deg
-          og hvordan det kan kobles til en karriere. Først tenker jeg vi blir litt kjent, 
-          før vi går over til å se på situasjonen din akkurat nå. Deretter skal vi utforske hva som driver og gir verdi for deg. 
-          Til slutt trykker du { " " }  <img src={kryssIkon} alt="kryss" style={{ width: "20px", verticalAlign: "middle" }} />
-          { " " } og du vil da få en oppsummering på hva vi har snakket om.
-          Du kan også avslutte samtalen når du vil, men får å få mest mulig ut av samtalen anbefaler vi en viss lengde.
+          Den er grei😊 La oss først bli litt kjent, før vi ser på hvordan situasjonen din er i dag.
+           Deretter utforsker vi hva som motiverer deg og gir deg mening, med inspirasjon fra Ikigai - en japansk metode. 
+          Ved å trykke { " " }  <img src={kryssIkon} alt="kryss" style={{ width: "20px", verticalAlign: "middle" }} />
+          { " " }, vil du få en oppsummering av samtalen vår.
+          Du kan avslutte samtalen når du vil, men for best utbytte anbefaler vi å ta deg tid.
         </>
       ),
     };
