@@ -7,6 +7,7 @@ import {
   phaseThreePrompt,
   phaseFourPrompt,
   summaryPrompt,
+  metaPrompt,
 } from "../data/chatbotPrompts";
 import "../styles/Chatbot.css";
 import { askChatbot } from "../utils/langchainChatbot";
@@ -108,142 +109,55 @@ const Chatbot = () => {
     }
   };
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    setLoading(true);
-  
-    const userMessage = { sender: "user", text: input.trim() };
-    setMessages((prev) => [...prev, userMessage]);
-    saveMessage(userMessage);
-    setInput("");
-    inputRef.current.style.height = "30px";
-  
-    // 👇 Brukeren svarer på oppsummering etter fase 2
-    if (isAwaitingSummaryConfirmation && phase === 2) {
-      console.log("✅ Bruker har bekreftet oppsummering. Går videre til fase 3.");
-      setIsAwaitingSummaryConfirmation(false);
-      setPhase(3);
-  
-      const confirmReply = await askChatbot(buildConversationForGPT([
-        ...messages,
-        userMessage
-      ]), phaseThreePrompt);
-  
-      setMessages((prev) => [...prev, { sender: "bot", text: confirmReply }]);
-      saveMessage({ sender: "bot", text: confirmReply });
-      setLoading(false);
-      setIsTyping(false);
-      return;
-    }
-  
-    // 👇 Brukeren svarer på oppsummering etter fase 3
-    if (isAwaitingSummaryConfirmation && phase === 3) {
-      console.log("✅ Bruker har bekreftet oppsummering. Går videre til fase 4.");
-      setIsAwaitingSummaryConfirmation(false);
-      setPhase(4);
-  
-      const confirmReply = await askChatbot(buildConversationForGPT([
-        ...messages,
-        userMessage
-      ]), phaseFourPrompt);
-  
-      setMessages((prev) => [...prev, { sender: "bot", text: confirmReply }]);
-      saveMessage({ sender: "bot", text: confirmReply });
-      setLoading(false);
-      setIsTyping(false);
-      return;
-    }
-  
-    setIsTyping(true);
-  
-    setTimeout(async () => {
+const sendMessage = async () => {
+  if (!input.trim()) return;
+  setLoading(true);
+
+  const userMessage = { sender: "user", text: input.trim() };
+  setMessages((prev) => [...prev, userMessage]);
+  saveMessage(userMessage);
+  setInput("");
+  inputRef.current.style.height = "30px";
+
+  setIsTyping(true);
+
+  setTimeout(async () => {
+    try {
       let botReply = "";
       const conversationMessages = buildConversationForGPT([
         ...messages,
         userMessage,
       ]);
-  
-      let systemPrompt = phaseOnePrompt;
-      if (phase === 2) {
-        systemPrompt = phaseTwoPrompt;
-      } else if (phase === 3) {
-        systemPrompt = phaseThreePrompt;
-      } else if (phase === 4) {
-        systemPrompt = phaseFourPrompt;
-      }
-  
+
+      // Kombiner metaPrompt med den aktuelle faseprompten
+      const currentPhasePrompt = phase === 1 ? phaseOnePrompt : phase === 2 ? phaseTwoPrompt : phase === 3 ? phaseThreePrompt : phaseFourPrompt;
+      const systemPrompt = `${metaPrompt}\n\n${currentPhasePrompt}`;
+
+      // Send samtalen og promptene til AI
       botReply = await askChatbot(conversationMessages, systemPrompt);
-  
-      const newQuestionCount = questionCount + 1;
-      setQuestionCount(newQuestionCount);
-  
-      let newPhase = phase;
-  
-      if (newQuestionCount === 5 && phase === 1) {
-        console.log("Bytter til fase 2...");
-        newPhase = 2;
-      } 
-      else if (newQuestionCount === 8 && phase === 2) {
-        console.log("🔄 Brukeren har sendt sitt 8. spørsmål (slutt på fase 2).");
-  
-        setIsAwaitingSummaryConfirmation(true);
-  
-        const summaryPrompt = `
-          Du er en AI-karriereveileder som fokuserer på motivasjonsfaktorer. 
-          Forklar med 2 setinger hvordan din forståelse av dem har vært så langt.
-          Forhør deg om de gjenkjenner seg i din forståelse av dem.
-        `;
-  
-        const summaryReply = await askChatbot(buildConversationForGPT([
-          ...messages,
-          userMessage
-        ]), summaryPrompt);
-  
-        console.log("🧠 Oppsummering etter fase 2:", summaryReply);
-  
-        setMessages((prev) => [...prev, { sender: "bot", text: summaryReply }]);
-        saveMessage({ sender: "bot", text: summaryReply });
-  
-        setLoading(false);
-        setIsTyping(false);
-        return;
-      } 
-      else if (newQuestionCount === 15 && phase === 3) {
-        console.log("🔄 Brukeren har sendt sitt 15. spørsmål (slutt på fase 3).");
-  
-        setIsAwaitingSummaryConfirmation(true);
-  
-        const summaryPrompt = `
-          Du er en AI-karriereveileder som fokuserer på motivasjonsfaktorer. 
-          Forklar med 2 setinger hvordan din forståelse av dem har vært så langt.
-          Forhør deg om de gjenkjenner seg i din forståelse av dem.
-        `;
-  
-        const summaryReply = await askChatbot(buildConversationForGPT([
-          ...messages,
-          userMessage
-        ]), summaryPrompt);
-  
-        console.log("🧠 Oppsummering etter fase 3:", summaryReply);
-  
-        setMessages((prev) => [...prev, { sender: "bot", text: summaryReply }]);
-        saveMessage({ sender: "bot", text: summaryReply });
-  
-        setLoading(false);
-        setIsTyping(false);
-        return;
-      }
-  
-      setPhase(newPhase);
-  
+
+      // Oppdater meldingslisten med botens svar
       setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
       saveMessage({ sender: "bot", text: botReply });
-  
+
+      // Oppdater fase dynamisk basert på AI-respons (valgfritt)
+      if (phase === 1 && botReply.includes("klar til å gå videre")) {
+        setPhase(2);
+      } else if (phase === 2 && botReply.includes("oppsummering")) {
+        setPhase(3);
+      } else if (phase === 3 && botReply.includes("neste steg")) {
+        setPhase(4);
+      }
+
       setIsTyping(false);
       setLoading(false);
-    }, 500);
-  };
-  
+    } catch (error) {
+      console.error("❌ Feil ved generering av svar:", error);
+      setIsTyping(false);
+      setLoading(false);
+    }
+  }, 500);
+};
 
   useEffect(() => {
     if (phase === 2) {
@@ -254,6 +168,18 @@ const Chatbot = () => {
     }
     else if (phase === 4) {
     console.log("Fase 4 er aktivert! Fullfører prosessen.");
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    console.log(`🔄 Nåværende fase: ${phase}`);
+
+    if (phase === 2) {
+      console.log("Fase 2 er aktivert! Bytter til dypere motivasjonsanalyse.");
+    } else if (phase === 3) {
+      console.log("Fase 3 er aktivert! Bytter til videre analyse.");
+    } else if (phase === 4) {
+      console.log("Fase 4 er aktivert! Fullfører prosessen.");
     }
   }, [phase]);
 

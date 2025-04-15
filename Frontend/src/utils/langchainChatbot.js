@@ -5,6 +5,10 @@ export const askChatbot = async (conversationMessages, systemPrompt) => {
     throw new Error("API key is missing. Please set the REACT_APP_OPENAI_API_KEY environment variable.");
   }
 
+  if (!Array.isArray(conversationMessages) || conversationMessages.length === 0) {
+    throw new Error("conversationMessages må være en ikke-tom liste.");
+  }
+
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -19,7 +23,7 @@ export const askChatbot = async (conversationMessages, systemPrompt) => {
       ],
     }),
   });
-  
+
   const data = await response.json();
 
   if (!response.ok) {
