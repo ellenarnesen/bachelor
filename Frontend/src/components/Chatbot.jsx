@@ -2,8 +2,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   initialMessage,
-  dynamicSystemPrompt,
-  summaryPrompt
+  phaseOnePrompt,
+  phaseTwoPrompt,
+  phaseThreePrompt,
+  phaseFourPrompt,
+  summaryPrompt,
 } from "../data/chatbotPrompts";
 import "../styles/Chatbot.css";
 import { askChatbot } from "../utils/langchainChatbot";
@@ -165,7 +168,8 @@ const Chatbot = () => {
   
       // Bygg samtalen for oppsummering
       const conversationMessages = buildConversationForGPT(messages);
-
+  
+      // Bruk summaryPrompt fra chatbotPrompts.js
       const summary = await askChatbot(conversationMessages, summaryPrompt);
   
       // Legg til oppsummeringen som en melding fra boten
