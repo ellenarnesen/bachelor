@@ -8,10 +8,10 @@ import {
 import "../styles/Chatbot.css";
 import { askChatbot } from "../utils/langchainChatbot";
 import logo from "../media/logo.png";
-import miniLogo from "../media/MH_logo.png";
+import miniLogo from "../media/avatar.png";
 import { IoClose } from "react-icons/io5";
 import { supabase } from "../supabaseClient";
-import kryssIkon from "../media/kryssikon.png";
+import kryssIkon from "../media/kryssIkon.png";
 import saveMessage from "../utils/saveMessage";
 import buildConversationForGPT from "../utils/buildConversation";
 import handleConsent from "../utils/handleConsent";
@@ -168,6 +168,10 @@ const Chatbot = () => {
     copyToClipboard(chatId, setCopySuccess);
   };
 
+  const handleInputBlur = () => {
+    document.activeElement.blur(); // Fjern fokus fra inputfeltet
+  };
+
   return (
     <div className="chat-container">
       <header className="chat-header">
@@ -240,6 +244,7 @@ const Chatbot = () => {
                 if (!chatEnded) sendMessage(); // Kun send hvis chat ikke er avsluttet
               }
             }}
+            onBlur={handleInputBlur} // Koble til funksjonen
             disabled={loading || chatEnded} // Deaktivert hvis chat er avsluttet
             rows={1}
             style={{ resize: "none", minHeight: "30px", maxHeight: "200px", overflowY: "auto" }}
@@ -253,9 +258,17 @@ const Chatbot = () => {
                 <button 
                   onClick={finishChat} 
                   title={hoverXbottom}
-                  disabled={isFinishingChat} // Deaktiver knappen etter første trykk
+                  disabled={isFinishingChat} 
+                  style={{ 
+                    fontSize: "20px", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    padding: "0.5rem", 
+                    lineHeight: "1" 
+                  }}
                 >
-                  <IoClose />
+                  <IoClose style={{ fontSize: "inherit" }} />
                 </button>
               ) : (
                 <div className="spinner">

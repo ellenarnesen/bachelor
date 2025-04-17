@@ -5,10 +5,10 @@ html{
 .chat-container {
   display: flex;
   flex-direction: column;
-  width: 95%; /* Bruk prosent for responsiv bredde */
-  max-width: 600px;
-  height: 90vh; /* Gjør høyden mer fleksibel */
-  margin: 20px auto;
+  width: 95%; /* Restore desktop width */
+  max-width: 600px; /* Restore desktop max width */
+  height: 90vh; /* Restore desktop height */
+  margin: 20px auto; /* Restore desktop margin */
   border: 1px solid #ddd;
   border-radius: 10px;
   background-color: white;
@@ -94,7 +94,7 @@ html{
 }
 
 .chat-bubble.user {
-  background-color: #ff5100;
+  background-color: #dc4424;
   color: white;
   padding: 15px;
   border-radius: 15px;
@@ -114,7 +114,7 @@ html{
   right: -6px;
   height: 20px;
   width: 20px;
-  background: linear-gradient(to bottom, #ff5100 0%, #ff5100 80%);
+  background: linear-gradient(to bottom, #dc4424 0%, #dc4424 80%);
   border-bottom-left-radius: 15px;
 }
 
@@ -139,20 +139,22 @@ html{
 
 .chat-input textarea {
   flex: 1; /* Lar input-feltet ta opp mest mulig plass */
-  padding: 10px;
+  padding: 10px; /* Restore desktop padding */
   border: 1px solid #ccc;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 16px; /* Sørg for at fontstørrelsen er minst 16px */
   margin-right: 10px;
   font-family: inherit; /* Bruk samme font som resten av UI-et */
   font-weight: normal; /* Sikre at den ikke blir for tynn eller tykk */
+  max-height: none; /* Remove height restriction for desktop */
+  overflow-y: auto;
 }
 
 .chat-input button {
-  background: #ff5100;
+  background: #dc4424;
   border: none;
   margin-right: 1%;
-  width: 35px;
+  width: 35px; /* Restore desktop button size */
   height: 35px;
   border-radius: 50%;
   color: white;
@@ -188,7 +190,7 @@ html{
 }
 
 .accept:hover, .decline:hover {
-  background-color: #ff5100;
+  background-color: #dc4424;
 }
 .chat-message {
   display: flex;
@@ -197,9 +199,9 @@ html{
 }
 
 .bot-avatar {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
+  width: 3.75rem; /*60px*/
+  height: 3.75rem; /*60px*/
+  border-radius: 30%;
   margin-left: 2%;
 }
 /* Bot-meldinger */
@@ -241,7 +243,7 @@ html{
 }
 
 .restart-button {
-  background-color: #ff5100;
+  background-color: #dc4424;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -312,9 +314,9 @@ html{
   }
 
   .chat-input button {
-    width: 30px;
+    width: 30px; /* Revert size for mobile */
     height: 30px;
-    font-size: 14px;
+    font-size: 14px; /* Revert font size for mobile */
   }
   
   .chatbot-messages {
@@ -328,5 +330,46 @@ html{
   .accept, .decline {
     font-size: 14px;
     padding: 8px 12px;
+  }
+}
+
+@media (max-width: 844px) { /* iPhone 14 Pro logical resolution */
+  .chat-container {
+    width: 95%; /* Adjust width for mobile */
+    height: 85vh; /* Adjust height for mobile */
+  }
+
+  .chat-bubble {
+    max-width: 85%; /* Reduce bubble width for mobile */
+  }
+
+  .logo {
+    width: 60%; /* Reduce logo size for mobile */
+  }
+
+  .chat-input textarea {
+    font-size: 12px; /* Smaller font size for mobile */
+    padding: 6px;
+    max-height: 150px; /* Restrict height for mobile */
+  }
+
+  .chat-input button {
+    width: 30px; /* Smaller button size for mobile */
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .chatbot-messages {
+    padding: 5px; /* Reduce padding for mobile */
+  }
+
+  .consent-buttons {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 8px; /* Reduce gap between buttons */
+  }
+
+  .accept, .decline {
+    font-size: 14px; /* Adjust button font size for mobile */
+    padding: 8px 10px;
   }
 }
