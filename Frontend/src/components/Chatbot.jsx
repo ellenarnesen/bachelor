@@ -12,6 +12,8 @@ import miniLogo from "../media/MH_logo.png";
 import { IoClose } from "react-icons/io5";
 import { supabase } from "../supabaseClient";
 import kryssIkon from "../media/kryssikon.png";
+import saveMessage from "../utils/saveMessage";
+import buildConversationForGPT from "../utils/buildConversation";
 
 // Bruker miljøvariabel for API-kall
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -30,7 +32,6 @@ const Chatbot = () => {
   const [copySuccess, setCopySuccess] = useState("");
   const [hoverText, setHoverText] = useState("Klikk for å kopiere ID");
   const [hoverXbottom, setHoverXbottom] = useState("Klikk for å avslutte samtalen og få en oppsummering");
-
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -77,7 +78,7 @@ const Chatbot = () => {
       jsx: (
         <>
           Den er grei😊 La oss først bli litt kjent, før vi ser på hvordan situasjonen din er i dag.
-           Deretter utforsker vi hva som motiverer deg og gir deg mening, med inspirasjon fra Ikigai - en japansk metode. 
+          Deretter utforsker vi hva som motiverer deg og gir deg mening, med inspirasjon fra Ikigai - en japansk metode. 
           Ved å trykke { " " }  <img src={kryssIkon} alt="kryss" style={{ width: "20px", verticalAlign: "middle" }} />
           { " " }, vil du få en oppsummering av samtalen vår.
           Du kan avslutte samtalen når du vil, men for best utbytte anbefaler vi å ta deg tid.
@@ -89,68 +90,50 @@ const Chatbot = () => {
       sender: "bot",
       text: " Men først! Mitt navn er SoftAi, hva heter du?"
     };
-    
 
     setMessages((prev) => [...prev, userMsg, botMsg1, botMsg2]);
 
     if (userConsent) {
       await startNewChat();
-      saveMessage(userMsg);
-      saveMessage(botMsg1);
-      saveMessage(botMsg2);
+      saveMessage(chatId, userConsent, userMsg);
+      saveMessage(chatId, userConsent, botMsg1);
+      saveMessage(chatId, userConsent, botMsg2);
     }
   };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
     setLoading(true);
-  
+
     const userMessage = { sender: "user", text: input.trim() };
     setMessages((prev) => [...prev, userMessage]);
-    saveMessage(userMessage);
+    saveMessage(chatId, consent, userMessage);
     setInput("");
     inputRef.current.style.height = "30px";
-  
+
     setIsTyping(true);
-  
+
     setTimeout(async () => {
       let botReply = "";
       const conversationMessages = buildConversationForGPT([
         ...messages,
         userMessage,
       ]);
-  
+
       botReply = await askChatbot(conversationMessages, dynamicSystemPrompt);
-  
+
       setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
-      saveMessage({ sender: "bot", text: botReply });
-  
+      saveMessage(chatId, consent, { sender: "bot", text: botReply });
+
       setIsTyping(false);
       setLoading(false);
     }, 500);
   };
 
-  const saveMessage = async (message) => {
-    if (!chatId || consent === false) {
-      return;
-    }
-  
-    try {
-      const { error } = await supabase
-        .from("messages")
-        .insert([{ chat_id: chatId, sender: message.sender, text: message.text }]);
-  
-      if (error) throw error;
-    } catch (error) {
-      console.error("❌ Feil ved lagring av melding:", error);
-    }
-  };
-  
-
   const finishChat = async () => {
     if (isFinishingChat) return; // Forhindrer flere kall
     setIsFinishingChat(true);
-  
+
     try {
       if (consent !== false && chatId) {
         // Oppdater samtalestatus i databasen
@@ -158,30 +141,30 @@ const Chatbot = () => {
           .from("chats")
           .update({ status: "finished" })
           .eq("id", chatId);
-  
+
         if (error) throw error;
       }
-  
+
       // Bygg samtalen for oppsummering
       const conversationMessages = buildConversationForGPT(messages);
-  
+
       // Bruk summaryPrompt fra chatbotPrompts.js
       const summary = await askChatbot(conversationMessages, summaryPrompt);
-  
+
       // Legg til oppsummeringen som en melding fra boten
       const summaryMessages = [
         { sender: "bot", text: "Her er en oppsummering av samtalen:" },
         { sender: "bot", text: summary },
         { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!\nHvis du vil starte på nytt, trykk på knappen nedenfor 👇" },
       ];
-  
+
       setMessages((prev) => [...prev, ...summaryMessages]);
-  
+
       // Lagre oppsummeringen i databasen
       for (const message of summaryMessages) {
-        await saveMessage(message); // Bruker saveMessage-funksjonen for å lagre meldinger
+        await saveMessage(chatId, consent, message);
       }
-  
+
       setChatEnded(true); // Marker samtalen som avsluttet
     } catch (error) {
       console.error("❌ Feil ved oppdatering av samtalestatus eller oppsummering:", error);
@@ -326,14 +309,5 @@ const Chatbot = () => {
     </div>
   );
 };
-
-function buildConversationForGPT(allMessages) {
-  return allMessages
-  .filter((m) => m.text) // Fjerner meldinger uten `text`
-  .map((m) => ({
-    role: m.sender === "bot" ? "assistant" : "user",
-    content: m.text,
-  }));
-}
 
 export default Chatbot;
