@@ -5,10 +5,10 @@ html{
 .chat-container {
   display: flex;
   flex-direction: column;
-  width: 95%; /* Restore desktop width */
-  max-width: 600px; /* Restore desktop max width */
-  height: 90vh; /* Restore desktop height */
-  margin: 20px auto; /* Restore desktop margin */
+  width: 95%; 
+  max-width: 600px; 
+  height: 90vh; 
+  margin: 20px auto; 
   border: 1px solid #ddd;
   border-radius: 10px;
   background-color: white;
@@ -139,14 +139,14 @@ html{
 
 .chat-input textarea {
   flex: 1; /* Lar input-feltet ta opp mest mulig plass */
-  padding: 10px; /* Restore desktop padding */
+  padding: 10px; 
   border: 1px solid #ccc;
   border-radius: 20px;
   font-size: 16px; /* Sørg for at fontstørrelsen er minst 16px */
   margin-right: 10px;
   font-family: inherit; /* Bruk samme font som resten av UI-et */
   font-weight: normal; /* Sikre at den ikke blir for tynn eller tykk */
-  max-height: none; /* Remove height restriction for desktop */
+  max-height: none; 
   overflow-y: auto;
 }
 
@@ -154,7 +154,7 @@ html{
   background: #dc4424;
   border: none;
   margin-right: 1%;
-  width: 35px; /* Restore desktop button size */
+  width: 35px; 
   height: 35px;
   border-radius: 50%;
   color: white;
@@ -199,8 +199,8 @@ html{
 }
 
 .bot-avatar {
-  width: 3.75rem; /*60px*/
-  height: 3.75rem; /*60px*/
+  width: 3.75rem; 
+  height: 3.75rem; 
   border-radius: 30%;
   margin-left: 2%;
 }
@@ -314,9 +314,9 @@ html{
   }
 
   .chat-input button {
-    width: 30px; /* Revert size for mobile */
+    width: 30px; 
     height: 30px;
-    font-size: 14px; /* Revert font size for mobile */
+    font-size: 14px; 
   }
   
   .chatbot-messages {
@@ -333,7 +333,7 @@ html{
   }
 }
 
-@media (max-width: 844px) { /* iPhone 14 Pro logical resolution */
+@media (max-width: 844px) { /* iPhone 14 Pro */
   .chat-container {
     width: 95%; /* Adjust width for mobile */
     height: 85vh; /* Adjust height for mobile */
