@@ -18,6 +18,7 @@ import handleConsent from "../utils/handleConsent";
 import copyToClipboard from "../utils/copyToClipboard";
 import scrollToBottom from "../utils/scrollToBottom";
 import finishChat from "../utils/finishChat";
+import sendMessage from "../utils/sendMessage";
 
 // Bruker miljøvariabel for API-kall
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -73,36 +74,10 @@ const Chatbot = () => {
     if (inputRef.current) inputRef.current.focus();
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    setLoading(true);
-
-    const userMessage = { sender: "user", text: input.trim() };
-    setMessages((prev) => [...prev, userMessage]);
-    saveMessage(chatId, consent, userMessage);
-    setInput("");
-    inputRef.current.style.height = "30px";
-
-    setIsTyping(true);
-
-    setTimeout(async () => {
-      let botReply = "";
-      const conversationMessages = buildConversationForGPT([
-        ...messages,
-        userMessage,
-      ]);
-
-      botReply = await askChatbot(conversationMessages, dynamicSystemPrompt);
-
-      setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
-      saveMessage(chatId, consent, { sender: "bot", text: botReply });
-
-      setIsTyping(false);
-      setLoading(false);
-    }, 500);
+  const handleSendMessage = () => {
+    sendMessage(input, setInput, setMessages, setLoading, setIsTyping, chatId, consent, messages, dynamicSystemPrompt, inputRef);
   };
 
-  
   const finishChatWrapper = () => {
     finishChat(isFinishingChat, setIsFinishingChat, consent, chatId, messages, setMessages, setChatEnded, summaryPrompt);
   };
@@ -201,14 +176,14 @@ const Chatbot = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                if (!chatEnded) sendMessage(); // Kun send hvis chat ikke er avsluttet
+                if (!chatEnded) handleSendMessage(); // Kun send hvis chat ikke er avsluttet
               }
             }}
             disabled={loading || chatEnded} // Deaktivert hvis chat er avsluttet
             rows={1}
             style={{ resize: "none", minHeight: "30px", maxHeight: "200px", overflowY: "auto" }}
           />
-          <button onClick={sendMessage} disabled={loading || chatEnded}>
+          <button onClick={handleSendMessage} disabled={loading || chatEnded}>
             ➤
           </button>
           {!chatEnded && (
