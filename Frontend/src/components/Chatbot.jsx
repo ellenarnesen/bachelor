@@ -16,6 +16,8 @@ import saveMessage from "../utils/saveMessage";
 import buildConversationForGPT from "../utils/buildConversation";
 import handleConsent from "../utils/handleConsent";
 import copyToClipboard from "../utils/copyToClipboard";
+import scrollToBottom from "../utils/scrollToBottom";
+import finishChat from "../utils/finishChat";
 
 // Bruker miljøvariabel for API-kall
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -67,7 +69,7 @@ const Chatbot = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(messagesEndRef);
     if (inputRef.current) inputRef.current.focus();
   }, [messages]);
 
@@ -100,47 +102,9 @@ const Chatbot = () => {
     }, 500);
   };
 
-  const finishChat = async () => {
-    if (isFinishingChat) return; // Forhindrer flere kall
-    setIsFinishingChat(true);
-
-    try {
-      if (consent !== false && chatId) {
-        // Oppdater samtalestatus i databasen
-        const { error } = await supabase
-          .from("chats")
-          .update({ status: "finished" })
-          .eq("id", chatId);
-
-        if (error) throw error;
-      }
-
-      // Bygg samtalen for oppsummering
-      const conversationMessages = buildConversationForGPT(messages);
-
-      // Bruk summaryPrompt fra chatbotPrompts.js
-      const summary = await askChatbot(conversationMessages, summaryPrompt);
-
-      // Legg til oppsummeringen som en melding fra boten
-      const summaryMessages = [
-        { sender: "bot", text: "Her er en oppsummering av samtalen:" },
-        { sender: "bot", text: summary },
-        { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!\nHvis du vil starte på nytt, trykk på knappen nedenfor 👇" },
-      ];
-
-      setMessages((prev) => [...prev, ...summaryMessages]);
-
-      // Lagre oppsummeringen i databasen
-      for (const message of summaryMessages) {
-        await saveMessage(chatId, consent, message);
-      }
-
-      setChatEnded(true); // Marker samtalen som avsluttet
-    } catch (error) {
-      console.error("❌ Feil ved oppdatering av samtalestatus eller oppsummering:", error);
-    } finally {
-      setIsFinishingChat(false); // Skjul spinneren når prosessen er ferdig
-    }
+  
+  const finishChatWrapper = () => {
+    finishChat(isFinishingChat, setIsFinishingChat, consent, chatId, messages, setMessages, setChatEnded, summaryPrompt);
   };
 
   const restartChat = async () => {
@@ -251,7 +215,7 @@ const Chatbot = () => {
             <div className="chat-actions">
               {!isFinishingChat ? (
                 <button 
-                  onClick={finishChat} 
+                  onClick={finishChatWrapper} 
                   title={hoverXbottom}
                   disabled={isFinishingChat} // Deaktiver knappen etter første trykk
                 >
