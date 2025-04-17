@@ -14,6 +14,7 @@ import { supabase } from "../supabaseClient";
 import kryssIkon from "../media/kryssikon.png";
 import saveMessage from "../utils/saveMessage";
 import buildConversationForGPT from "../utils/buildConversation";
+import handleConsent from "../utils/handleConsent";
 
 // Bruker miljøvariabel for API-kall
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -59,47 +60,15 @@ const Chatbot = () => {
     }
   };
 
+  // Flytt handleConsentWrapper inn i Chatbot-komponenten
+  const handleConsentWrapper = (userConsent) => {
+    handleConsent(userConsent, setConsent, setMessages, startNewChat, chatId, kryssIkon);
+  };
+
   useEffect(() => {
     scrollToBottom();
     if (inputRef.current) inputRef.current.focus();
   }, [messages]);
-
-  const handleConsent = async (userConsent) => {
-    setConsent(userConsent);
-
-    const userMsg = {
-      sender: "user",
-      text: userConsent
-        ? "Ja, jeg samtykker."
-        : "Nei, jeg ønsker ikke lagring.",
-    };
-    const botMsg1 = {
-      sender: "bot",
-      jsx: (
-        <>
-          Den er grei😊 La oss først bli litt kjent, før vi ser på hvordan situasjonen din er i dag.
-          Deretter utforsker vi hva som motiverer deg og gir deg mening, med inspirasjon fra Ikigai - en japansk metode. 
-          Ved å trykke { " " }  <img src={kryssIkon} alt="kryss" style={{ width: "20px", verticalAlign: "middle" }} />
-          { " " }, vil du få en oppsummering av samtalen vår.
-          Du kan avslutte samtalen når du vil, men for best utbytte anbefaler vi å ta deg tid.
-        </>
-      ),
-    };
-
-    const botMsg2 = {
-      sender: "bot",
-      text: " Men først! Mitt navn er SoftAi, hva heter du?"
-    };
-
-    setMessages((prev) => [...prev, userMsg, botMsg1, botMsg2]);
-
-    if (userConsent) {
-      await startNewChat();
-      saveMessage(chatId, userConsent, userMsg);
-      saveMessage(chatId, userConsent, botMsg1);
-      saveMessage(chatId, userConsent, botMsg2);
-    }
-  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -262,8 +231,8 @@ const Chatbot = () => {
 
       {consent === null && (
         <div className="consent-buttons">
-          <button className="accept" onClick={() => handleConsent(true)}>Godta</button>
-          <button className="decline" onClick={() => handleConsent(false)}>Avslå</button>
+          <button className="accept" onClick={() => handleConsentWrapper(true)}>Godta</button>
+          <button className="decline" onClick={() => handleConsentWrapper(false)}>Avslå</button>
         </div>
       )}
 
