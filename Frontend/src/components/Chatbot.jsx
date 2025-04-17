@@ -15,6 +15,7 @@ import kryssIkon from "../media/kryssikon.png";
 import saveMessage from "../utils/saveMessage";
 import buildConversationForGPT from "../utils/buildConversation";
 import handleConsent from "../utils/handleConsent";
+import copyToClipboard from "../utils/copyToClipboard";
 
 // Bruker miljøvariabel for API-kall
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -162,19 +163,9 @@ const Chatbot = () => {
     e.target.style.height = `${e.target.scrollHeight}px`;
   };
 
-  const copyToClipboard = () => {
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      navigator.clipboard.writeText(chatId)
-        .then(() => {
-          setCopySuccess("Chat-ID kopiert!");
-          setTimeout(() => setCopySuccess(""), 2000);
-        })
-        .catch((err) => {
-          console.error("Feil ved kopiering av Chat-ID:", err);
-        });
-    } else {
-      console.warn("Clipboard API ikke tilgjengelig.");
-    }
+  // Funksjon for å håndtere kopiering ved trykk av chat ID
+  const handleCopyToClipboard = () => {
+    copyToClipboard(chatId, setCopySuccess);
   };
 
   return (
@@ -187,7 +178,7 @@ const Chatbot = () => {
         {chatId && (
           <p
             className="chat-id"
-            onClick={copyToClipboard}
+            onClick={handleCopyToClipboard}
             title={hoverText}
             style={{ cursor: "pointer" }}
           >
