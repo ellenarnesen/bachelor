@@ -6,7 +6,6 @@ import {
   summaryPrompt,
 } from "../data/chatbotPrompts";
 import "../styles/Chatbot.css";
-import { askChatbot } from "../utils/langchainChatbot";
 import logo from "../media/logo.png";
 import miniLogo from "../media/MH_logo.png";
 import { IoClose } from "react-icons/io5";
@@ -19,9 +18,6 @@ import copyToClipboard from "../utils/copyToClipboard";
 import scrollToBottom from "../utils/scrollToBottom";
 import finishChat from "../utils/finishChat";
 import sendMessage from "../utils/sendMessage";
-
-// Bruker miljøvariabel for API-kall
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
