@@ -309,7 +309,7 @@ html{
   }
   
   .chat-input textarea {
-    font-size: 14px;
+    font-size: 16px; /* Øk fontstørrelsen for bedre lesbarhet */
     padding: 8px;
   }
 
@@ -348,7 +348,7 @@ html{
   }
 
   .chat-input textarea {
-    font-size: 12px; /* Smaller font size for mobile */
+    font-size: 16px; /* Øk fontstørrelsen for bedre lesbarhet */
     padding: 6px;
     max-height: 150px; /* Restrict height for mobile */
   }
