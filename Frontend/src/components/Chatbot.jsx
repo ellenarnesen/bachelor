@@ -11,7 +11,7 @@ import logo from "../media/logo.png";
 import miniLogo from "../media/avatar.png";
 import { IoClose } from "react-icons/io5";
 import { supabase } from "../supabaseClient";
-import kryssIkon from "../media/kryssIkon.png";
+import kryssIkon from "../media/kryssikon.png";
 import saveMessage from "../utils/saveMessage";
 import buildConversationForGPT from "../utils/buildConversation";
 import handleConsent from "../utils/handleConsent";
