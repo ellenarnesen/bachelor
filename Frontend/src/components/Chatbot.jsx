@@ -6,7 +6,6 @@ import {
   summaryPrompt,
 } from "../data/chatbotPrompts";
 import "../styles/Chatbot.css";
-import { askChatbot } from "../utils/langchainChatbot";
 import logo from "../media/logo.png";
 import miniLogo from "../media/avatar.png";
 import { IoClose } from "react-icons/io5";
@@ -16,9 +15,9 @@ import saveMessage from "../utils/saveMessage";
 import buildConversationForGPT from "../utils/buildConversation";
 import handleConsent from "../utils/handleConsent";
 import copyToClipboard from "../utils/copyToClipboard";
-
-// Bruker miljøvariabel for API-kall
-const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+import scrollToBottom from "../utils/scrollToBottom";
+import finishChat from "../utils/finishChat";
+import sendMessage from "../utils/sendMessage";
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
@@ -67,80 +66,16 @@ const Chatbot = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(messagesEndRef);
     if (inputRef.current) inputRef.current.focus();
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    setLoading(true);
-
-    const userMessage = { sender: "user", text: input.trim() };
-    setMessages((prev) => [...prev, userMessage]);
-    saveMessage(chatId, consent, userMessage);
-    setInput("");
-    inputRef.current.style.height = "30px";
-
-    setIsTyping(true);
-
-    setTimeout(async () => {
-      let botReply = "";
-      const conversationMessages = buildConversationForGPT([
-        ...messages,
-        userMessage,
-      ]);
-
-      botReply = await askChatbot(conversationMessages, dynamicSystemPrompt);
-
-      setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
-      saveMessage(chatId, consent, { sender: "bot", text: botReply });
-
-      setIsTyping(false);
-      setLoading(false);
-    }, 500);
+  const handleSendMessage = () => {
+    sendMessage(input, setInput, setMessages, setLoading, setIsTyping, chatId, consent, messages, dynamicSystemPrompt, inputRef);
   };
 
-  const finishChat = async () => {
-    if (isFinishingChat) return; // Forhindrer flere kall
-    setIsFinishingChat(true);
-
-    try {
-      if (consent !== false && chatId) {
-        // Oppdater samtalestatus i databasen
-        const { error } = await supabase
-          .from("chats")
-          .update({ status: "finished" })
-          .eq("id", chatId);
-
-        if (error) throw error;
-      }
-
-      // Bygg samtalen for oppsummering
-      const conversationMessages = buildConversationForGPT(messages);
-
-      // Bruk summaryPrompt fra chatbotPrompts.js
-      const summary = await askChatbot(conversationMessages, summaryPrompt);
-
-      // Legg til oppsummeringen som en melding fra boten
-      const summaryMessages = [
-        { sender: "bot", text: "Her er en oppsummering av samtalen:" },
-        { sender: "bot", text: summary },
-        { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!\nHvis du vil starte på nytt, trykk på knappen nedenfor 👇" },
-      ];
-
-      setMessages((prev) => [...prev, ...summaryMessages]);
-
-      // Lagre oppsummeringen i databasen
-      for (const message of summaryMessages) {
-        await saveMessage(chatId, consent, message);
-      }
-
-      setChatEnded(true); // Marker samtalen som avsluttet
-    } catch (error) {
-      console.error("❌ Feil ved oppdatering av samtalestatus eller oppsummering:", error);
-    } finally {
-      setIsFinishingChat(false); // Skjul spinneren når prosessen er ferdig
-    }
+  const finishChatWrapper = () => {
+    finishChat(isFinishingChat, setIsFinishingChat, consent, chatId, messages, setMessages, setChatEnded, summaryPrompt);
   };
 
   const restartChat = async () => {
@@ -241,7 +176,7 @@ const Chatbot = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                if (!chatEnded) sendMessage(); // Kun send hvis chat ikke er avsluttet
+                if (!chatEnded) handleSendMessage(); // Kun send hvis chat ikke er avsluttet
               }
             }}
             onBlur={handleInputBlur} // Koble til funksjonen
@@ -249,14 +184,14 @@ const Chatbot = () => {
             rows={1}
             style={{ resize: "none", minHeight: "30px", maxHeight: "200px", overflowY: "auto" }}
           />
-          <button onClick={sendMessage} disabled={loading || chatEnded}>
+          <button onClick={handleSendMessage} disabled={loading || chatEnded}>
             ➤
           </button>
           {!chatEnded && (
             <div className="chat-actions">
               {!isFinishingChat ? (
                 <button 
-                  onClick={finishChat} 
+                  onClick={finishChatWrapper} 
                   title={hoverXbottom}
                   disabled={isFinishingChat} 
                   style={{ 
