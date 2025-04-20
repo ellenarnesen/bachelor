@@ -18,6 +18,7 @@ import copyToClipboard from "../utils/copyToClipboard";
 import scrollToBottom from "../utils/scrollToBottom";
 import finishChat from "../utils/finishChat";
 import sendMessage from "../utils/sendMessage";
+import startNewChat from "utils/startNewChat";
 
 // Importer nødvendige funksjoner og komponenter
 const Chatbot = () => {
@@ -41,7 +42,7 @@ const Chatbot = () => {
   //
   useEffect(() => {
     if (consent) {
-      startNewChat();
+      startNewChat(setChatId);
     }
   }, [consent]);
 
