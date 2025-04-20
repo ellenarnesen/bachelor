@@ -56,9 +56,9 @@ const Chatbot = () => {
       if (error) throw error;
 
       setChatId(data.id);
-      console.log("✅ Ny samtale startet med ID:", data.id);
+      console.log("Ny samtale startet med ID:", data.id);
     } catch (error) {
-      console.error("❌ Feil ved oppstart av chat:", error);
+      console.error("Feil ved oppstart av chat:", error);
     }
   };
 
@@ -73,12 +73,6 @@ const Chatbot = () => {
     if (inputRef.current) inputRef.current.focus();
   }, [messages]);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-    if (inputRef.current) inputRef.current.focus();
-  }, [messages]);
 
   // Funksjon for å håndtere sending av melding
   const handleSendMessage = () => {
@@ -101,7 +95,8 @@ const Chatbot = () => {
   };
 
 
-
+  // Funksjon for å håndtere endringer i inputfeltet
+  // Setter høyden på inputfeltet basert på innholdet
   const handleInputChange = (e) => {
     setInput(e.target.value);
     e.target.style.height = "30px";
@@ -113,6 +108,7 @@ const Chatbot = () => {
     copyToClipboard(chatId, setCopySuccess);
   };
 
+  // Funksjon som gjør at brukeren ikke kan skrive på inputfeltet når det genereres svar fra chatboten
   const handleInputBlur = () => {
     document.activeElement.blur(); // Fjern fokus fra inputfeltet
   };
