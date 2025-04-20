@@ -6,7 +6,7 @@ const restartChat = (setChatId, setConsent, setChatEnded, setIsFinishingChat, se
   setConsent(null);
   setChatEnded(false);
   setIsFinishingChat(false);
-  setMessages([{ sender: "bot", text: initialMessage }]);
+  setMessages([{ sender: "bot", text: initialMessage }]); // Start med en tekstmelding
   startNewChat(setChatId);
 };
 

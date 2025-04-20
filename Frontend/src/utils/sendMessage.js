@@ -78,10 +78,56 @@ const sendMessage = async (input, setInput, setMessages, setLoading, setIsTyping
         userMessage,
       ]);
 
+      console.log("🛠️ Meldinger sendt til GPT:", conversationMessages);
+
       const botReply = await askChatbot(conversationMessages, dynamicSystemPrompt);
 
-      setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
-      saveMessage(chatId, consent, { sender: "bot", text: botReply });
+      // Sjekk om svaret inneholder en punktliste
+      let botMessage;
+      if (botReply.includes("\n-") || botReply.includes("\n*")) {
+        // Formater som en liste
+        const listItems = botReply.split("\n").filter((item) => item.trim().startsWith("-") || item.trim().startsWith("*"));
+        botMessage = {
+          sender: "bot",
+          jsx: (
+            <ul>
+              {listItems.map((item, index) => (
+                <li key={index}>
+                  {item
+                    .replace(/^[-*]\s*/, "") // Fjern "-" eller "*" fra starten
+                    .split(/(\*\*.*?\*\*)/) // Del opp i tekst og fet skrift
+                    .map((part, i) =>
+                      part.startsWith("**") && part.endsWith("**") ? (
+                        <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
+                      ) : (
+                        part
+                      )
+                    )}
+                </li>
+              ))}
+            </ul>
+          ),
+        };
+      } else {
+        // Vanlig tekst med støtte for fet skrift
+        botMessage = {
+          sender: "bot",
+          jsx: (
+            <p>
+              {botReply.split(/(\*\*.*?\*\*)/).map((part, i) =>
+                part.startsWith("**") && part.endsWith("**") ? (
+                  <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
+                ) : (
+                  part
+                )
+              )}
+            </p>
+          ),
+        };
+      }
+
+      setMessages((prev) => [...prev, botMessage]);
+      saveMessage(chatId, consent, botMessage);
     } catch (error) {
       console.error("❌ Feil ved sending av melding:", error);
     } finally {

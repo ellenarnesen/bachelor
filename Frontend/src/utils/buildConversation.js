@@ -23,12 +23,20 @@ Returnerer:
 - En liste som kan brukes direkte for å sende samtalen til GPT-modellen.
 */
 
-const buildConversationForGPT = (allMessages) => { 
-  return allMessages // Tar inn alle meldinger
-    .filter((m) => m.text) // Fjerner meldinger uten `text`
-    .map((m) => ({ 
-      role: m.sender === "bot" ? "assistant" : "user", // Setter rollen basert på sender
-      content: m.text, // Innholdet i meldingen
+const extractTextFromJSX = (jsx) => {
+  // Hvis JSX er en liste, trekk ut teksten fra hvert element
+  if (Array.isArray(jsx.props.children)) {
+    return jsx.props.children.map((child) => (typeof child === "string" ? child : "")).join(", ");
+  }
+  return typeof jsx === "string" ? jsx : "Listeinnhold";
+};
+
+const buildConversationForGPT = (allMessages) => {
+  return allMessages
+    .filter((m) => m.text || m.jsx) // Inkluder meldinger med tekst eller JSX
+    .map((m) => ({
+      role: m.sender === "bot" ? "assistant" : "user",
+      content: m.text || (m.jsx ? extractTextFromJSX(m.jsx) : ""), // Konverter JSX til tekst
     }));
 };
 

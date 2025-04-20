@@ -77,18 +77,56 @@ const finishChat = async (isFinishingChat, setIsFinishingChat, consent, chatId, 
     }
 
     // Bygg samtalen for oppsummering
-    const conversationMessages = buildConversationForGPT(messages); // Bruker hele meldingslisten
-    
+    const conversationMessages = buildConversationForGPT(
+      messages.map((m) => ({
+        ...m,
+        text: m.text || (m.jsx ? "Liste eller JSX-innhold" : ""), // Konverter JSX til tekst
+      }))
+    );
 
     // Generer oppsummering
     const summary = await askChatbot(conversationMessages, summaryPrompt);
     console.log("🛠️ Oppsummering fra GPT:", summary);
 
-    // Legg til oppsummeringen som en melding fra boten
+    // Del opp teksten i introduksjon og punktliste
+    const [intro, ...listItems] = summary.split("\n-"); // Del opp ved første punktliste
+    const formattedIntro = (
+      <p>
+        {intro.split(/(\*\*.*?\*\*)/).map((part, i) =>
+          part.startsWith("**") && part.endsWith("**") ? (
+            <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
+          ) : (
+            part
+          )
+        )}
+      </p>
+    );
+
+    const formattedList = listItems.length > 0 && (
+      <ul>
+        {listItems.map((item, index) => (
+          <li key={index}>
+            {item
+              .replace(/^[-*]\s*/, "") // Fjern "-" eller "*" fra starten
+              .split(/(\*\*.*?\*\*)/) // Del opp i tekst og fet skrift
+              .map((part, i) =>
+                part.startsWith("**") && part.endsWith("**") ? (
+                  <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
+                ) : (
+                  part
+                )
+              )}
+          </li>
+        ))}
+      </ul>
+    );
+
+    // Legg til oppsummeringen som meldinger fra boten
     const summaryMessages = [
       { sender: "bot", text: "Her er en oppsummering av samtalen:" },
-      { sender: "bot", text: summary },
-      { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!\nHvis du vil starte på nytt, trykk på knappen nedenfor 👇" },
+      { sender: "bot", jsx: formattedIntro },
+      ...(formattedList ? [{ sender: "bot", jsx: formattedList }] : []),
+      { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!" },
     ];
 
     setMessages((prev) => [...prev, ...summaryMessages]); // Oppdater meldingslisten med oppsummeringen
@@ -100,7 +138,7 @@ const finishChat = async (isFinishingChat, setIsFinishingChat, consent, chatId, 
 
     setChatEnded(true); // Marker samtalen som avsluttet
   } catch (error) {
-    console.error("❌ Feil ved oppdatering av samtalestatus eller oppsummering:", error);
+    console.error("❌ Feil ved oppsummering:", error);
   } finally {
     setIsFinishingChat(false); // Skjul spinneren når prosessen er ferdig
   }

@@ -37,9 +37,10 @@ const saveMessage = async (chatId, consent, message) => {
   }
 
   try {
+    const textToSave = message.text || (message.jsx ? "Liste eller JSX-innhold" : ""); // Konverter JSX til tekst
     const { error } = await supabase
       .from("messages")
-      .insert([{ chat_id: chatId, sender: message.sender, text: message.text }]);
+      .insert([{ chat_id: chatId, sender: message.sender, text: textToSave }]);
 
     if (error) throw error;
   } catch (error) {
