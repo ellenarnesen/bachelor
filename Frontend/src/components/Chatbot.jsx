@@ -39,35 +39,17 @@ const Chatbot = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   
-  //
-  useEffect(() => {
-    if (consent) {
-      startNewChat(setChatId);
-    }
-  }, [consent]);
-
-  const startNewChat = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("chats")
-        .insert([{ status: "active" }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setChatId(data.id);
-      console.log("Ny samtale startet med ID:", data.id);
-    } catch (error) {
-      console.error("Feil ved oppstart av chat:", error);
-    }
-  };
 
   // Flytt handleConsentWrapper inn i Chatbot-komponenten
   const handleConsentWrapper = (userConsent) => {
     handleConsent(userConsent, setConsent, setMessages, startNewChat, chatId, kryssIkon);
   };
-  
+
+  useEffect(() => {
+    if (consent) {
+      startNewChat(setChatId); // Kaller startNewChat funksjonen når samtykke er gitt
+    }
+  }, [consent]);
   // Funksjon som skroller til bunnen av chatten
   useEffect(() => {
     scrollToBottom(messagesEndRef);
@@ -94,7 +76,6 @@ const Chatbot = () => {
     setMessages([{ sender: "bot", text: initialMessage }]);
     startNewChat();
   };
-
 
   // Funksjon for å håndtere endringer i inputfeltet
   // Setter høyden på inputfeltet basert på innholdet
