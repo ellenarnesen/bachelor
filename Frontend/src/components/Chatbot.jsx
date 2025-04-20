@@ -19,6 +19,7 @@ import scrollToBottom from "../utils/scrollToBottom";
 import finishChat from "../utils/finishChat";
 import sendMessage from "../utils/sendMessage";
 
+// Importer nødvendige funksjoner og komponenter
 const Chatbot = () => {
   const [messages, setMessages] = useState([
     { sender: "bot", text: initialMessage },
@@ -36,7 +37,8 @@ const Chatbot = () => {
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-
+  
+  //
   useEffect(() => {
     if (consent) {
       startNewChat();
@@ -64,20 +66,31 @@ const Chatbot = () => {
   const handleConsentWrapper = (userConsent) => {
     handleConsent(userConsent, setConsent, setMessages, startNewChat, chatId, kryssIkon);
   };
-
+  
+  // Funksjon som skroller til bunnen av chatten
   useEffect(() => {
     scrollToBottom(messagesEndRef);
     if (inputRef.current) inputRef.current.focus();
   }, [messages]);
 
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+    if (inputRef.current) inputRef.current.focus();
+  }, [messages]);
+
+  // Funksjon for å håndtere sending av melding
   const handleSendMessage = () => {
     sendMessage(input, setInput, setMessages, setLoading, setIsTyping, chatId, consent, messages, dynamicSystemPrompt, inputRef);
   };
 
+  // Funksjon for å håndtere avslutning av chatten
   const finishChatWrapper = () => {
     finishChat(isFinishingChat, setIsFinishingChat, consent, chatId, messages, setMessages, setChatEnded, summaryPrompt);
   };
 
+  // Funksjon for restarte chatten
   const restartChat = async () => {
     setChatId(null);
     setConsent(null);
@@ -87,10 +100,7 @@ const Chatbot = () => {
     startNewChat();
   };
 
-  const scrollToBottom = () => {
-    if (messagesEndRef.current)
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-  };
+
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
