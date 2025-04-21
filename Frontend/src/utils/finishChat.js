@@ -90,42 +90,48 @@ const finishChat = async (isFinishingChat, setIsFinishingChat, consent, chatId, 
 
     // Del opp teksten i introduksjon og punktliste
     const [intro, ...listItems] = summary.split("\n-"); // Del opp ved første punktliste
-    const formattedIntro = (
-      <p>
-        {intro.split(/(\*\*.*?\*\*)/).map((part, i) =>
-          part.startsWith("**") && part.endsWith("**") ? (
-            <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
-          ) : (
-            part
-          )
-        )}
-      </p>
+
+    // Formater introduksjonen
+    const formattedIntro = intro.split(/(\*\*.*?\*\*)/).map((part, i) =>
+      part.startsWith("**") && part.endsWith("**") ? (
+        <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
+      ) : (
+        part
+      )
     );
 
-    const formattedList = listItems.length > 0 && (
-      <ul>
-        {listItems.map((item, index) => (
-          <li key={index}>
-            {item
-              .replace(/^[-*]\s*/, "") // Fjern "-" eller "*" fra starten
-              .split(/(\*\*.*?\*\*)/) // Del opp i tekst og fet skrift
-              .map((part, i) =>
-                part.startsWith("**") && part.endsWith("**") ? (
-                  <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
-                ) : (
-                  part
-                )
-              )}
-          </li>
-        ))}
-      </ul>
+    // Formater punktlisten
+    const formattedList =
+      listItems.length > 0 ? (
+        <ul>
+          {listItems.map((item, index) => (
+            <li key={index}>
+              {item
+                .replace(/^[-*]\s*/, "") // Fjern "-" eller "*" fra starten
+                .split(/(\*\*.*?\*\*)/) // Del opp i tekst og fet skrift
+                .map((part, i) =>
+                  part.startsWith("**") && part.endsWith("**") ? (
+                    <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
+                  ) : (
+                    part
+                  )
+                )}
+            </li>
+          ))}
+        </ul>
+      ) : null;
+
+    // Kombiner introduksjon og punktliste i én melding
+    const combinedMessage = (
+      <div>
+        <p>{formattedIntro}</p>
+        {formattedList}
+      </div>
     );
 
-    // Legg til oppsummeringen som meldinger fra boten
+    // Legg til oppsummeringen som én melding fra boten
     const summaryMessages = [
-      { sender: "bot", text: "Her er en oppsummering av samtalen:" },
-      { sender: "bot", jsx: formattedIntro },
-      ...(formattedList ? [{ sender: "bot", jsx: formattedList }] : []),
+      { sender: "bot", jsx: combinedMessage },
       { sender: "bot", text: "Takk for samtalen!😊 Ha en fin dag videre!" },
     ];
 

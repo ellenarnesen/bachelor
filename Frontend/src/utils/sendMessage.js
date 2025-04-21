@@ -82,34 +82,55 @@ const sendMessage = async (input, setInput, setMessages, setLoading, setIsTyping
 
       const botReply = await askChatbot(conversationMessages, dynamicSystemPrompt);
 
-      // Sjekk om svaret inneholder en punktliste
+      // Sjekk om svaret inneholder både vanlig tekst og punktliste
       let botMessage;
-      if (botReply.includes("\n-") || botReply.includes("\n*")) {
-        // Formater som en liste
-        const listItems = botReply.split("\n").filter((item) => item.trim().startsWith("-") || item.trim().startsWith("*"));
+      const [intro, ...listItems] = botReply.split("\n-"); // Del opp ved første punktliste
+
+      if (listItems.length > 0) {
+        // Formater både introduksjon og punktliste
+        const formattedIntro = (
+          <p>
+            {intro.split(/(\*\*.*?\*\*)/).map((part, i) =>
+              part.startsWith("**") && part.endsWith("**") ? (
+                <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
+              ) : (
+                part
+              )
+            )}
+          </p>
+        );
+
+        const formattedList = (
+          <ul>
+            {listItems.map((item, index) => (
+              <li key={index}>
+                {item
+                  .trim()
+                  .split(/(\*\*.*?\*\*)/) // Del opp i tekst og fet skrift
+                  .map((part, i) =>
+                    part.startsWith("**") && part.endsWith("**") ? (
+                      <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
+                    ) : (
+                      part
+                    )
+                  )}
+              </li>
+            ))}
+          </ul>
+        );
+
+        // Kombiner introduksjon og punktliste i én melding
         botMessage = {
           sender: "bot",
           jsx: (
-            <ul>
-              {listItems.map((item, index) => (
-                <li key={index}>
-                  {item
-                    .replace(/^[-*]\s*/, "") // Fjern "-" eller "*" fra starten
-                    .split(/(\*\*.*?\*\*)/) // Del opp i tekst og fet skrift
-                    .map((part, i) =>
-                      part.startsWith("**") && part.endsWith("**") ? (
-                        <strong key={i}>{part.replace(/\*\*/g, "")}</strong>
-                      ) : (
-                        part
-                      )
-                    )}
-                </li>
-              ))}
-            </ul>
+            <div>
+              {formattedIntro}
+              {formattedList}
+            </div>
           ),
         };
       } else {
-        // Vanlig tekst med støtte for fet skrift
+        // Hvis det kun er vanlig tekst
         botMessage = {
           sender: "bot",
           jsx: (
