@@ -28,6 +28,7 @@ import finishChat from "../utils/finishChat";
 import sendMessage from "../utils/sendMessage";
 import startNewChat from "utils/startNewChat";
 import restartChat from "../utils/restartChat";
+import countUserMessages from "../utils/questionCounter"; // Importer funksjonen
 
 // Funksjonen for chatbot-komponenten
 const Chatbot = () => {
@@ -50,6 +51,9 @@ const Chatbot = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  // Beregn antall meldinger fra brukeren
+  const userMessageCount = countUserMessages(messages);
+
   /*
   ------------------
   Hjelpefunksjoner: 
@@ -68,16 +72,18 @@ const Chatbot = () => {
 
   // Håndter avslutning av chat direkte
   const handleFinishChat = () => {
-    finishChat(
-      isFinishingChat,
-      setIsFinishingChat,
-      consent,
-      chatId,
-      messages,
-      setMessages,
-      setChatEnded,
-      summaryPrompt
-    );
+    if (userMessageCount >= 10) {
+      finishChat(
+        isFinishingChat,
+        setIsFinishingChat,
+        consent,
+        chatId,
+        messages,
+        setMessages,
+        setChatEnded,
+        summaryPrompt
+      );
+    }
   };
 
   // Håndter sending av melding direkte
@@ -247,8 +253,12 @@ const Chatbot = () => {
               {!isFinishingChat ? (
                 <button
                   onClick={handleFinishChat}
-                  title={hoverXbottom}
-                  disabled={isFinishingChat}
+                  title={
+                    userMessageCount < 15
+                      ? "Du må besvare minst 15 spørsmål før du kan avslutte chatten"
+                      : hoverXbottom
+                  }
+                  disabled={isFinishingChat || userMessageCount < 15} // Deaktiver knappen hvis færre enn 10 meldinger
                   style={{
                     fontSize: "20px",
                     display: "flex",
@@ -256,6 +266,7 @@ const Chatbot = () => {
                     justifyContent: "center",
                     padding: "0.5rem",
                     lineHeight: "1",
+                    opacity: userMessageCount < 15 ? 0.5 : 1, // Gjør knappen halvtransparent hvis den er deaktivert
                   }}
                 >
                   <IoClose style={{ fontSize: "inherit" }} />
