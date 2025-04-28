@@ -51,9 +51,6 @@ const Chatbot = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Beregn antall meldinger fra brukeren
-  const userMessageCount = countUserMessages(messages);
-
   /*
   ------------------
   Hjelpefunksjoner: 
@@ -117,6 +114,9 @@ const Chatbot = () => {
       setMessages
     );
   };
+
+    // Beregn antall meldinger fra brukeren
+    const userMessageCount = countUserMessages(messages);
   /*
   ------------------
   useEffect Hooks:
