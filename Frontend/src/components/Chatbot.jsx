@@ -1,24 +1,26 @@
 // src/components/Chatbot.jsx
+
+// Import av nødvendige React-hooks og eksterne biblioteker
 import React, { useState, useEffect, useRef } from "react";
 
-// Import av prompter og initial melding
+// Import av prompter og initial melding for chatbotten
 import {
   initialMessage,
   dynamicSystemPrompt,
   summaryPrompt,
 } from "../data/chatbotPrompts";
 
-// Import at styler og ikoner
+// Import av stiler og ikoner
 import "../styles/Chatbot.css";
 import logo from "../media/logo.png";
 import miniLogo from "../media/avatar.png";
 import { IoClose } from "react-icons/io5";
 import kryssIkon from "../media/kryssikon.png";
 
-// import av databasemodellen
+// Import av Supabase-klienten for databasetilgang
 import { supabase } from "../supabaseClient";
 
-// Import av hjelpefunksjoner
+// Import av hjelpefunksjoner for lagring av meldinger, bygging av samtaler osv.
 import saveMessage from "../utils/saveMessage";
 import buildConversationForGPT from "../utils/buildConversation";
 import handleConsent from "../utils/handleConsent";
@@ -28,26 +30,24 @@ import finishChat from "../utils/finishChat";
 import sendMessage from "../utils/sendMessage";
 import startNewChat from "utils/startNewChat";
 import restartChat from "../utils/restartChat";
-import countUserMessages from "../utils/questionCounter"; // Importer funksjonen
+import countUserMessages from "../utils/questionCounter"; // Importer funksjonen som teller brukerens meldinger
 
 // Funksjonen for chatbot-komponenten
 const Chatbot = () => {
-  const [messages, setMessages] = useState([
-    { sender: "bot", text: initialMessage },
-  ]);
-  const [consent, setConsent] = useState(null);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const [chatId, setChatId] = useState(null);
-  const [chatEnded, setChatEnded] = useState(false);
-  const [isFinishingChat, setIsFinishingChat] = useState(false);
-  const [copySuccess, setCopySuccess] = useState("");
-  const [hoverText, setHoverText] = useState("Klikk for å kopiere ID");
-  const [hoverXbottom, setHoverXbottom] = useState(
-    "Klikk for å avslutte samtalen og få en oppsummering"
-  );
+  // State hooks for å lagre tilstanden til chatten
+  const [messages, setMessages] = useState([{ sender: "bot", text: initialMessage },]);
+  const [consent, setConsent] = useState(null); // Samtykke-status
+  const [input, setInput] = useState(""); // Brukerens input
+  const [loading, setLoading] = useState(false); // Indikerer om chatbotten laster
+  const [isTyping, setIsTyping] = useState(false); // Indikerer om chatbotten skriver
+  const [chatId, setChatId] = useState(null); // Chat ID for sesjonen
+  const [chatEnded, setChatEnded] = useState(false); // Indikerer om chatten er avsluttet
+  const [isFinishingChat, setIsFinishingChat] = useState(false); // Indikerer om chatten blir ferdig
+  const [copySuccess, setCopySuccess] = useState(""); // Bekreftelse på kopiering
+  const [hoverText, setHoverText] = useState("Klikk for å kopiere ID"); // Tekst for kopieringstips
+  const [hoverXbottom, setHoverXbottom] = useState("Klikk for å avslutte samtalen og få en oppsummering"); // Tekst for avslutningstips
 
+  // Referanser for å rulle til bunnen av chatten og for input-feltet
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -99,12 +99,12 @@ const Chatbot = () => {
     );
   };
 
-  // Håndter kopiering av chat-ID direkte
+  // Håndter kopiering av chat-ID til clipboard
   const handleCopyToClipboard = () => {
     copyToClipboard(chatId, setCopySuccess);
   };
 
-  // Håndter restart av chat direkte
+  // Håndter restart av chat
   const handleRestartChat = () => {
     restartChat(
       setChatId,
@@ -121,13 +121,13 @@ const Chatbot = () => {
   ------------------
   useEffect Hooks:
   */
- // Håndterer endringer i chatId og oppdaterer meldingslisten
+  // Starter ny chat når samtykke er gitt
   useEffect(() => {
     if (consent) {
       startNewChat(setChatId);
     }
   }, [consent]);
-  // Håndterer at det scrolles til bunnen av chatvinduet når nye meldinger legges til
+  // Scroller til bunnen av chatvinduet når nye meldinger legges til
   useEffect(() => {
     scrollToBottom(messagesEndRef);
     if (inputRef.current) inputRef.current.focus();
@@ -138,17 +138,19 @@ const Chatbot = () => {
   Funksjoner for håndtering av chat:
   */
 
+  // Håndterer endringer i input-feltet, justerer høyde på textarea etter innhold
   const handleInputChange = (e) => {
     setInput(e.target.value);
     e.target.style.height = "30px";
     e.target.style.height = `${e.target.scrollHeight}px`;
   };
 
+  // Håndterer blur (tap av fokus) på input-feltet
   const handleInputBlur = () => {
     document.activeElement.blur();
   };
   // --------------------
-  // HTML-struktur:
+  // HTML-struktur for komponenten:
   return (
     <div className="chat-container">
       <header className="chat-header">
@@ -284,5 +286,5 @@ const Chatbot = () => {
   );
 };
 
+// Eksporter komponenten for bruk i appen
 export default Chatbot; // export til index.js
-// slik at komponenten kan brukes i appen
